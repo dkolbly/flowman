@@ -1,0 +1,4 @@
+monogdb
+python-pymongo
+python-twisted-web
+python-mongoengine
