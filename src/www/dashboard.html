@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<html xmlns:t="http://twistedmatrix.com/ns/twisted.web.template/0.1">
+  <head>
+    <title>Workflow</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="generic.css" ></link>
+    <link rel="stylesheet" type="text/css" href="jquery.mobile-1.2.1.min.css" ></link>
+    <script src="ext/jquery-1.8.3.min.js" type="text/javascript"></script>
+    <script src="ext/jquery.mobile-1.3.0/jquery.mobile-1.3.0.min.js"></script>
+    <script src="ext/autobahn.min.js" type="text/javascript" ></script>
+    <script src="js/dashboard.js" type="text/javascript" ></script>
+  </head>
+<body>
+
+<div>
+<div id="notification">
+  <ul id="notificationList">
+    <li><span>Blah...</span>
+    <li><span>Blech...</span>
+  </ul>
+</div>
+</div>
+
+<div data-role="page" id="overview">
+  <div data-role="header">
+    <h1>Overview</h1>
+  </div>
+  <div data-role="content">
+    <div data-role="collapsible" data-inset="false">
+    <h2>Projects <span id="projectCount" class="count ui-btn-up-c ui-btn-corner-all">0</span></h2>
+    <ul id="projectList" data-role="listview" data-inset="true" data-filter="true">
+    </ul>
+    </div>
+    <div data-role="collapsible" data-inset="false">
+    <h2>Requests</h2>
+    <ul data-role="listview" data-inset="true" data-filter="true">
+      <li data-theme="b"><a href="#">A</a></li>
+      <li data-theme="b"><a href="#">B</a></li>
+      <li data-theme="b"><a href="#">C</a></li>
+    </ul>
+    </h2>
+  </div>
+ </div>
+<p><a href="#pullq" data-role="button" data-icon="arrow-r" data-iconpos="right">Pull Requests</a></p>
+
+  <div data-role="footer">
+    <p><span class="status">Status</span></p>
+  </div>
+
+</div>
+
+<div data-role="page" id="pullq">
+  <div data-role="header">
+    <h1>Pull Requests</h1>
+  </div>
+  <div data-role="content">
+    These are the pull requests
+  </div>
+
+  <div data-role="footer">
+    <p><span class="status">Status</span></p>
+  </div>
+</div>
+
+</body>
+</html>
