@@ -24,6 +24,8 @@ class User(Document):
     meta = { "indexes": ['userId'], "allow_inheritance": False }
     userId = SequenceField( required=True, sequence_name='UserId' )
     login = StringField( required=True )
+    passwordSalt = StringField()
+    passwordHash = StringField()
     label = StringField( required=True )
     aliases = ListField( StringField() )
     def __repr__( self ):

@@ -1,2 +1,5 @@
 RUN_DIR=$(readlink -f .run)
+
+export PYTHONPATH=PWD:/u/donovan/p/flowman/.run/AutobahnPython/autobahn
+
 export PYTHONPATH=${RUN_DIR}/lib/python2.7/site-packages/autobahn-0.5.14-py2.7.egg

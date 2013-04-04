@@ -4,22 +4,16 @@ WorkflowSession = null;
 function connected(session) {
     console.log( "Connected" );
     WorkflowSession = session;
-    WorkflowSession.getProjects = function () {
-        var deferred = when.defer();
-        session.call( "http://rscheme.org/workflow#getProjects" )
-            .then( function(ret) {
-                      deferred.resolve( ret );
-                   },
-                   function(err,desc) {
-                       console.log( "RPC Error:" );
-                       console.log( err );
-                       console.log( desc );
-                       deferred.reject( "RPC Error" );
-                   } );
-        return deferred;
-        };
-    $(".status").html( "Connected" );
+    makeSession( session );
+    session.didReceiveNotification = function (topic,event) {
+        postNotification( new Date(event[0]), event[1] );
+    };
 
+    postNotification( new Date(), "Connected" );
+
+    //session.anonymousLogin();
+    session.userLogin( "alice", "foobar" );
+/*
     // load up state from the server
     var p = WorkflowSession.getProjects();
     when( p, function (projects) {
@@ -31,29 +25,43 @@ function connected(session) {
         };
         $("#projectList").listview('refresh');
     } );
-
+*/
 }
 
 function disconnected(code,reason) {
     console.log( "Disconnected: " + code + " (" + reason + ")" );
+    if (WorkflowSession) {
+        postNotification( new Date(), "Disconnected (" + code + ")" );
+    }
     WorkflowSession = null;
-    $(".status").html( "<i>Disconnected (" + code + ")</i>" );
 }
 
 function getProjects(then) {
     return WorkflowSession.getProjects();
 }
 
-function postNotification(what) {
-    x = $("#notificationList").append( "<li><span>" + what + "</span></li>" );
-    // x is not the object I think it should be...
-    x.hide();
-    x.fadeIn();
+nextNotificationId = 0;
+notificationIndex = {};
+notificationShown = false;
+
+function postNotification(when,what) {
+    var i = nextNotificationId++;
+    var itemId = "n" + i;
+    var whenTime = when.toTimeString().substr(0,5);
+    var item = "<tr id='" + itemId + "'><td>" + whenTime + "</td><td>" + what + "</td></tr>";
+    $("#notificationList").append( item );
+    if (notificationShown) {
+        $("#"+itemId).hide().fadeIn();
+    } else {
+        $("#notification").fadeIn();
+        notificationShown = true;
+    }
 }
 
 function pageLoaded() {
     // handler for when this page loads
-    var wsURI = "ws://localhost:2001";
+    var windowURI = window.location;
+    var wsURI = "ws://" + windowURI.hostname + ":2001";
     ab.connect( wsURI, connected, disconnected );
 }
 
