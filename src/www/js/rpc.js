@@ -10,18 +10,32 @@ function makeSession( session ) {
 
     session.userLogin = function (user,password) {
         console.log( "doing userLogin()" );
-        session.authreq(user).then( function(challenge) {
-            console.log( "challenge:" );
-            console.log( challenge );
-            var jc = JSON.parse(challenge);
-            console.log( jc );
-            var secret = ab.deriveKey( password, jc.authextra );
-            var sig = session.authsign( challenge, secret );
-            session.auth(sig).then( session.onAuthenticated );
-        } )
+        session.authreq(user).then( 
+            function(challenge) {
+                console.log( "challenge:" );
+                console.log( challenge );
+                var jc = JSON.parse(challenge);
+                console.log( jc );
+                var secret = ab.deriveKey( password, jc.authextra );
+                var sig = session.authsign( challenge, secret );
+                session.auth(sig).then( session.onAuthenticated );
+            },
+            function (x) {
+                console.log( "failed login:" );
+                console.log( x );
+                if (x.uri == "http://api.wamp.ws/error#no-such-authkey") {
+                    postNotification( new Date(), 
+                                      "Unknown user \"" + user + "\"",
+                                      "notify-error",
+                                      x.desc );
+                    for (var i=0; i<x.detail.length; i++) {
+                        console.log( x.detail[i] );
+                    }
+                }
+            } );
     };
 
-    session.didReceiveNotification = function (topic,event) {
+    session.didReceiveNotification = function (event) {
     };
 
     session.onAuthenticated = function (perm) {
@@ -32,7 +46,7 @@ function makeSession( session ) {
                            function (topic, event) {
                                console.log( "Got event (" + topic + "): " 
                                             + event );
-                               session.didReceiveNotification( topic, event );
+                               session.didReceiveNotification( event );
                            } );
 
     };

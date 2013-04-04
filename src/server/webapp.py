@@ -7,10 +7,10 @@ from twisted.web.resource import Resource, NoResource, IResource, ForbiddenResou
 from twisted.web.static import File
 from twisted.web.server import Site
 from autobahn.wamp import WampServerFactory, WampCraProtocol, WampCraServerProtocol, exportRpc, exportPub, exportSub
-from autobahn.wamp import WampClientFactory, WampClientProtocol
-from autobahn.websocket import listenWS, connectWS
+from autobahn.websocket import listenWS
 
 from server.auth import AuthenticationManager
+from server.notify import NotificationProtocol
 
 AUTH_MGR = AuthenticationManager()
 
@@ -24,20 +24,12 @@ root.putChild( "images", NonBrowsableFile( ".run/www/jquery.mobile-1.3.0/images"
 
 import time
 
-class NotificationProtocol(WampClientProtocol):
-    def onSessionOpen( self ):
-        print "Internal connection to notification service"
-        deferLater( reactor, 1, self.foo )
-        self.uri = "http://rscheme.org/workflow#notification"
-
-    @inlineCallbacks
-    def foo( self ):
-        for i in range(1000):
-            ev = [int(1000*time.time()),"Test %d" % i]
-            self.publish( self.uri, ev )
-            yield deferLater( reactor, 1, lambda: None )
-
 class WorkflowProtocol(WampCraServerProtocol):
+
+    def onConnect( self, c ):
+        print "connection from %r" % (c.peer,)
+        return WampCraServerProtocol.onConnect( self, c )
+
     @exportRpc
     def foo( self, x, y ):
         return [x,y,x]
@@ -109,15 +101,19 @@ class WorkflowProtocol(WampCraServerProtocol):
     def onAuthenticated( self, authKey, perms ):
         print "onAuthenticated"
         self.registerForRpc( self, "http://rscheme.org/workflow#" )
-        print "---------------------\n%r" % (self.subHandlers,)
+        peer = "somewhere"
+        if authKey is None:
+            msg = "Anonymous connected from %s" % peer
+        else:
+            msg = "%s connected from %s" % (authKey,peer)
+        deferLater( reactor, 1, lambda: NotificationProtocol.notify(msg) )
+
+
 
 f = WampServerFactory( "ws://localhost:2001", debugWamp=True )
 f.protocol = WorkflowProtocol
 listenWS(f)
-
-f = WampClientFactory( "ws://localhost:2001", debugWamp=True )
-f.protocol = NotificationProtocol
-connectWS(f)
+NotificationProtocol.start()
 
 from twisted.python import log
 

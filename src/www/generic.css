@@ -4,13 +4,39 @@ h1 {
   font-size: 18px;
 }
 
+.notification-close-box {
+    position: absolute;
+    left: 270px;
+    top: 5px;
+    width: 16px;
+    height: 16px;
+    background-image:url("closebox.png");
+    border:none;
+}
+
+.notification-close-box:hover {
+    position: absolute;
+    left: 270px;
+    top: 5px;
+    width: 16px;
+    height: 16px;
+    background-image:url("closebox2.png");
+    border:none;
+}
+
 #notification {
     border-radius: 5px;
     position: fixed;
     top: 3px;
     left: 3px;
-    width: 50%;
+    width: 300px;
     background: #eecc2b;
     opacity: 0.9;
     z-index: 100;
+    font-family: sans;
+    font-size: small;
+}
+
+.notify-error {
+    color: red;
 }
