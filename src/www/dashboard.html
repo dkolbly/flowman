@@ -46,10 +46,21 @@
   </div>
  </div>
 <p><a href="#pullq" data-role="button" data-icon="arrow-r" data-iconpos="right">Pull Requests</a></p>
+<p><a href="#login" data-rel="popup">Login</a></p>
 
-  <div data-role="footer">
-    <p><span class="status">Status</span></p>
+<div data-role="popup" id="login">
+  <div data-role="header">
+    <h1>Login</h1>
   </div>
+  <div data-role="content">
+    <label for="loginName">Login name:</label>
+    <input type="text" name="name" id="loginName" value="" />
+    <label for="loginPassword">Password:</label>
+    <input type="text" name="password" id="loginPassword" value="" />
+    <button type="submit" data-theme="b">Sign in</button>
+  </div>
+
+</div>
 
 </div>
 
@@ -60,11 +71,8 @@
   <div data-role="content">
     These are the pull requests
   </div>
-
-  <div data-role="footer">
-    <p><span class="status">Status</span></p>
-  </div>
 </div>
+
 
 </body>
 </html>

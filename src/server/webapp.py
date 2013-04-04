@@ -62,7 +62,6 @@ class WorkflowProtocol(WampCraServerProtocol):
         return True
 
     def onSessionOpen( self ):
-        print "Got a session"
         self.clientAuthTimeout = 0
         self.clientAuthAllowAnonymous = True
         self.registerForPubSub( "http://rscheme.org/workflow#", prefixMatch=True )
@@ -99,9 +98,8 @@ class WorkflowProtocol(WampCraServerProtocol):
         return threads.deferToThread( thunk )
 
     def onAuthenticated( self, authKey, perms ):
-        print "onAuthenticated"
         self.registerForRpc( self, "http://rscheme.org/workflow#" )
-        peer = "somewhere"
+        peer = self.peerstr
         if authKey is None:
             msg = "Anonymous connected from %s" % peer
         else:
