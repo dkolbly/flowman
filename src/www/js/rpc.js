@@ -19,10 +19,18 @@ function makeSession( session ) {
                 var secret = ab.deriveKey( password, jc.authextra );
                 var sig = session.authsign( challenge, secret );
                 session.auth(sig).then( 
-                    session.onAuthenticated,
+                    function (perm) {
+                        session.onAuthenticated( user, perm );
+                    },
                     function (x) {
                         console.log( "failed auth:" );
                         console.log( x );
+                        if (x.uri == "http://api.wamp.ws/error#invalid-signature") {
+                            postNotification( new Date(),
+                                              "Incorrect password",
+                                              "notify-error",
+                                              x.desc );
+                        }
                     } );
             },
             function (x) {
@@ -33,17 +41,19 @@ function makeSession( session ) {
                                       "Unknown user \"" + user + "\"",
                                       "notify-error",
                                       x.desc );
-                    for (var i=0; i<x.detail.length; i++) {
+                    /*for (var i=0; i<x.detail.length; i++) {
                         console.log( x.detail[i] );
-                    }
+                    }*/
                 }
             } );
     };
 
     session.didReceiveNotification = function (event) {
     };
+    session.didAuthenticate = function (user, perm) {
+    };
 
-    session.onAuthenticated = function (perm) {
+    session.onAuthenticated = function (user, perm) {
         console.log( "onAuthenticated, permissions:" );
         console.log( perm );
 
@@ -53,7 +63,7 @@ function makeSession( session ) {
                                             + event );
                                session.didReceiveNotification( event );
                            } );
-
+        session.didAuthenticate( user, perm );
     };
 
     session.getProjects = function () {

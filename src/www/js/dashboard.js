@@ -9,6 +9,15 @@ function connected(session) {
         postNotification( new Date(event[0]), event[1] );
     };
 
+    session.didAuthenticate = function (user, perm) {
+        console.log( "didAuthenticate:" );
+        console.log( perm );
+        if (perm.info) {
+            $("#loginButton .ui-btn-text").text( perm.info.label );
+        } else {
+            $("#loginButton .ui-btn-text").text( "Anonymous" );
+        }
+    }
     postNotification( new Date(), "Connected" );
 
     var user = $("#loginName").val();

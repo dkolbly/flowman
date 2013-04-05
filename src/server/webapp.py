@@ -55,7 +55,8 @@ class WorkflowProtocol(WampCraServerProtocol):
                  "pubsub": [ { 'uri': "http://rscheme.org/workflow#notification",
                                'prefix': True,
                                'pub': True,
-                               'sub': True } ] }
+                               'sub': True } ],
+                 "info": { "label": user.label } }
 
     def handleSubscription( self, base, suffix ):
         print "handleSubscription base=%r suffix=%r" % (base,suffix,)
