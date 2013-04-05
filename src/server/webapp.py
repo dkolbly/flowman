@@ -110,6 +110,7 @@ class WorkflowProtocol(WampCraServerProtocol):
 
 f = WampServerFactory( "ws://localhost:2001", debugWamp=True )
 f.protocol = WorkflowProtocol
+f.setProtocolOptions( allowHixie76=True )
 listenWS(f)
 NotificationProtocol.start()
 
