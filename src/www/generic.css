@@ -6,8 +6,8 @@ h1 {
 
 .notification-close-box {
     position: absolute;
-    left: 270px;
-    top: 5px;
+    left: 284px;
+    top: 0px;
     width: 16px;
     height: 16px;
     background-image:url("closebox.png");
@@ -16,8 +16,8 @@ h1 {
 
 .notification-close-box:hover {
     position: absolute;
-    left: 270px;
-    top: 5px;
+    left: 284px;
+    top: 0px;
     width: 16px;
     height: 16px;
     background-image:url("closebox2.png");
@@ -35,6 +35,14 @@ h1 {
     z-index: 100;
     font-family: sans;
     font-size: small;
+}
+
+#notification table tr td {
+  vertical-align: top;
+}
+
+#notification table tr th {
+  text-align: left;
 }
 
 .notify-error {

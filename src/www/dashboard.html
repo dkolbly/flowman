@@ -20,7 +20,7 @@
 <div id="notification" style="display: none;">
   <button type="submit" onclick="notificationClose()" class="notification-close-box"></button>
   <table id="notificationList">
-    <tr><th>Time</th><th>Item</th></tr>
+    <tr><th>Time</th><th>Message</th></tr>
   </table>
 </div>
 </div>
@@ -46,7 +46,7 @@
   </div>
  </div>
 <p><a href="#pullq" data-role="button" data-icon="arrow-r" data-iconpos="right">Pull Requests</a></p>
-<p><a href="#login" data-rel="popup">Login</a></p>
+<p><a href="#login" data-rel="popup" data-role="button" data-inline="true">Login</a></p>
 
 <div data-role="popup" id="login">
   <div data-role="header">
@@ -57,7 +57,7 @@
     <input type="text" name="name" id="loginName" value="" />
     <label for="loginPassword">Password:</label>
     <input type="text" name="password" id="loginPassword" value="" />
-    <button type="submit" data-theme="b">Sign in</button>
+    <button type="submit" data-theme="b" onclick="loginSignIn()">Sign in</button>
   </div>
 
 </div>

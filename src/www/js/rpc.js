@@ -18,7 +18,12 @@ function makeSession( session ) {
                 console.log( jc );
                 var secret = ab.deriveKey( password, jc.authextra );
                 var sig = session.authsign( challenge, secret );
-                session.auth(sig).then( session.onAuthenticated );
+                session.auth(sig).then( 
+                    session.onAuthenticated,
+                    function (x) {
+                        console.log( "failed auth:" );
+                        console.log( x );
+                    } );
             },
             function (x) {
                 console.log( "failed login:" );

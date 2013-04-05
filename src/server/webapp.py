@@ -37,9 +37,9 @@ class WorkflowProtocol(WampCraServerProtocol):
     @exportRpc
     def getProjects( self ):
         return [ { "name": "p3",
-                   "label": "Cayman" },
+                   "label": "RScheme 0.7-3.x" },
                  { "name": "p4",
-                   "label": "Modules" } ]
+                   "label": "RScheme 8" } ]
 
     def anonPermissions( self ):
         return { "rpc": [ { 'uri': "http://rscheme.org/workflow#getProjects",
@@ -110,6 +110,12 @@ class WorkflowProtocol(WampCraServerProtocol):
 
 f = WampServerFactory( "ws://localhost:2001", debugWamp=True )
 f.protocol = WorkflowProtocol
+#
+# allowHixie76=True is required in order to work with iOS and Safari,
+# but this is insecure
+#
+# see https://groups.google.com/forum/?fromgroups=#!topic/autobahnws/wOEU3Bvp4HQ
+
 f.setProtocolOptions( allowHixie76=True )
 listenWS(f)
 NotificationProtocol.start()

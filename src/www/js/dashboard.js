@@ -11,7 +11,13 @@ function connected(session) {
 
     postNotification( new Date(), "Connected" );
 
-    session.anonymousLogin();
+    var user = $("#loginName").val();
+    if (user) {
+        session.userLogin( $("#loginName").val(),
+                           $("#loginPassword").val() );
+    } else {
+        session.anonymousLogin();
+    }
     //session.userLogin( "alice", "foobar" );
 /*
     // load up state from the server
@@ -49,6 +55,17 @@ function notificationClose() {
     $("#notification").fadeOut();
 }
 
+function loginSignIn() {
+    var user = $("#loginName").val();
+    $("#login").popup("close");
+    postNotification( new Date(), "Re-authenticating as " + user );
+    if (WorkflowSession) {
+        WorkflowSession.close();
+        WorkflowSession = null;
+        initiateConnection();
+    }
+}
+
 function postNotification(when,what,type,details) {
     var i = nextNotificationId++;
     notificationIndex[i] = [when,what,type,details];
@@ -77,11 +94,15 @@ function postNotification(when,what,type,details) {
     }
 }
 
-function pageLoaded() {
-    // handler for when this page loads
+function initiateConnection() {
     var windowURI = window.location;
     var wsURI = "ws://" + windowURI.hostname + ":2001";
     ab.connect( wsURI, connected, disconnected );
+}
+
+function pageLoaded() {
+    // handler for when this page loads
+    initiateConnection();
 }
 
 $(document).ready( pageLoaded );
