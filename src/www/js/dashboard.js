@@ -81,10 +81,14 @@ function postNotification(when,what,type,details) {
     
     var itemId = "n" + i;
     var whenTime = when.toTimeString().substr(0,5);
-    if (type != "") {
-        type = " class='" + type + "'";
+    if (!type) {
+        type = "notify-normal";
     }
-    var item = "<tr" + type + " id='" + itemId + "'><td>" + whenTime + "</td><td>" + what + "</td></tr>";
+    var item = Mustache.render( notificationTemplate,
+                                { type: type,
+                                  itemId: itemId,
+                                  whenTime: whenTime,
+                                  what: what } );
     $("#notificationList").append( item );
     if (notificationShown) {
         $("#"+itemId).hide().fadeIn();
@@ -93,6 +97,8 @@ function postNotification(when,what,type,details) {
         notificationShown = true;
     }
 }
+
+notificationTemplate = "<tr class='{{type}}' id='{{itemId}}'><td>{{whenTime}}</td><td>{{what}}</td></tr>";
 
 function initiateConnection() {
     var windowURI = window.location;
