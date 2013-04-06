@@ -73,7 +73,9 @@ class Item(Document):
         self.label = f.itemPattern % dict( itemInFolder=f.count )
         self.itemInFolder = f.count
     def __repr__( self ):
-        return "<Item %s>" % (self.label,)
+        return "<Item %s/%s/%s>" % (self.inFolder.inProject.name,
+                                    self.inFolder.name, 
+                                    self.label,)
 
 class Audit(Document):
     meta = { "allow_inheritance": True }

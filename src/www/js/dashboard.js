@@ -10,6 +10,10 @@
    - highlighting of the currently selected project doesn't work when
      returning to the options page
 
+   - reconnecting ("loading") dialog sticks around when autobahn.js finally
+     gives up
+
+   - need complete rewrite for better data abstraction!
 */
 
 
@@ -23,6 +27,8 @@ function projectSelect(x) {
 }
 
 projectEntryTemplate = '<li data-theme="{{theme}}"><a id="{{oid}}" href="#options" onclick="projectSelect(this)"><h3>{{label}}</h3><p>{{description}}</p></a></li>';
+
+itemEntryTemplate = '<li><a id="{{oid}}" href="p/{{projectName}}/{{folderName}}/{{itemInFolder}}/" onclick="projectSelect(this)"><h3>{{label}}</h3><p>{{description}}</p></a></li>';
 
 function reloadStateFromServer() {
     console.log( "reloading state" );
