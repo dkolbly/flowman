@@ -11,6 +11,7 @@ from autobahn.websocket import listenWS
 
 from server.auth import AuthenticationManager
 from server.notify import NotificationProtocol
+from server.dal import RestrictedView
 
 AUTH_MGR = AuthenticationManager()
 
@@ -36,10 +37,7 @@ class WorkflowProtocol(WampCraServerProtocol):
 
     @exportRpc
     def getProjects( self ):
-        return [ { "name": "p3",
-                   "label": "RScheme 0.7-3.x" },
-                 { "name": "p4",
-                   "label": "RScheme 8" } ]
+        return threads.deferToThread( self.view.getProjects )
 
     def anonPermissions( self ):
         return { "rpc": [ { 'uri': "http://rscheme.org/workflow#getProjects",
@@ -47,7 +45,9 @@ class WorkflowProtocol(WampCraServerProtocol):
                  "pubsub": [ { 'uri': "http://rscheme.org/workflow#notification",
                                'prefix': True,
                                'pub': True,
-                               'sub': True } ] }
+                               'sub': True } ],
+                 "info": { "roles": [ { 'name': 'guest',
+                                        'label': "Guest" } ] } }
 
     def userPermissions( self, user ):
         return { "rpc": [ { 'uri': "http://rscheme.org/workflow#getProjects",
@@ -56,7 +56,15 @@ class WorkflowProtocol(WampCraServerProtocol):
                                'prefix': True,
                                'pub': True,
                                'sub': True } ],
-                 "info": { "label": user.label } }
+                 "info": { "label": user.label,
+                           "roles": [ { 'name': 'user',
+                                        'label': "User" },
+                                      { 'name': 'guest',
+                                        'label': "Guest" },
+                                      { 'name': 'operator',
+                                        'label': "Operator" },
+                                      { 'name': 'admin',
+                                        'label': "Administrator" } ] } }
 
     def handleSubscription( self, base, suffix ):
         print "handleSubscription base=%r suffix=%r" % (base,suffix,)
@@ -99,6 +107,7 @@ class WorkflowProtocol(WampCraServerProtocol):
         return threads.deferToThread( thunk )
 
     def onAuthenticated( self, authKey, perms ):
+        self.view = RestrictedView( authKey, perms )
         self.registerForRpc( self, "http://rscheme.org/workflow#" )
         peer = self.peerstr
         if authKey is None:

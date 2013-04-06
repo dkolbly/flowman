@@ -16,6 +16,7 @@ class Project(Document):
              "indexes": ["name"] }
     name = StringField( required=True, unique=True )
     label = StringField( required=True )
+    description = StringField()
     properties = DictField()
     def __repr__( self ):
         return "<Project %s>" % (self.name,)
@@ -105,3 +106,6 @@ class ApprovalAction(ManualAction):
     status = IntField( required=True, default=0 )
     STATUS = { 0: "Active", 1: "Approved", 2: "Rejected" }
     pass
+
+# TODO - first-class Policy objects, to report policy violations
+# and bypasses

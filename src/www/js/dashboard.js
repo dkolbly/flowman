@@ -1,7 +1,55 @@
 
+/* Bugs:
+
+   - sometimes the Projects list doesn't get cleared out and will
+     get multiple copies of projects.  check when the server goes
+     up and down, and when doing login/logout from main page
+
+   - the Role list is not populated from the permissions.info object
+
+   - highlighting of the currently selected project doesn't work when
+     returning to the options page
+
+*/
+
+
 WorkflowSession = null;
+selectedProjectOid = null;
+
+function projectSelect(x) {
+    console.log( "project selection: " + x.id );
+    selectedProjectOid = x.id;
+    reloadStateFromServer();
+}
+
+projectEntryTemplate = '<li data-theme="{{theme}}"><a id="{{oid}}" href="#options" onclick="projectSelect(this)"><h3>{{label}}</h3><p>{{description}}</p></a></li>';
+
+function reloadStateFromServer() {
+    console.log( "reloading state" );
+    // reload our state from the server
+    var p = WorkflowSession.getProjects();
+    console.log( p );
+    when( p, function (projects) {
+        $("#projectList .li").remove();
+        console.log( projects );
+        for (var i = 0; i<projects.length; i++) {
+            var p = jQuery.extend( {}, projects[i] );
+            if (p.oid == selectedProjectOid) {
+                p.theme = "b";
+            } else {
+                p.theme = "c";
+            }
+            $("#projectList").append( Mustache.render( projectEntryTemplate, 
+                                                       p ) );
+        };
+        $("#projectList").listview('refresh');
+    } );
+};
 
 function connected(session) {
+    $.mobile.loading( 'show', { theme:"b", 
+                                text:"Authenticating",
+                                textVisible: true } );
     console.log( "Connected" );
     WorkflowSession = session;
     makeSession( session );
@@ -12,13 +60,17 @@ function connected(session) {
     session.didAuthenticate = function (user, perm) {
         console.log( "didAuthenticate:" );
         console.log( perm );
-        if (perm.info) {
+        if (perm && perm.info) {
             $("#loginButton .ui-btn-text").text( perm.info.label );
+            session.permissions = perm;
         } else {
             $("#loginButton .ui-btn-text").text( "Anonymous" );
         }
-    }
-    postNotification( new Date(), "Connected" );
+        $.mobile.loading( 'hide' );
+        reloadStateFromServer();
+    };
+
+    postNotification( new Date(), "Connected..." );
 
     var user = $("#loginName").val();
     if (user) {
@@ -27,24 +79,13 @@ function connected(session) {
     } else {
         session.anonymousLogin();
     }
-    //session.userLogin( "alice", "foobar" );
-/*
-    // load up state from the server
-    var p = WorkflowSession.getProjects();
-    when( p, function (projects) {
-        console.log( projects );
-        for (var i = 0; i<projects.length; i++) {
-            var p = projects[i];
-            console.log( p );
-            $("#projectList").append('<li><a id="' + p.name + '">' + p.label + '</a></li>');
-        };
-        $("#projectList").listview('refresh');
-    } );
-*/
 }
 
 function disconnected(code,reason) {
     console.log( "Disconnected: " + code + " (" + reason + ")" );
+    $.mobile.loading( 'show', { theme:"b", 
+                                text:"Reconnecting",
+                                textVisible: true } );
     if (WorkflowSession) {
         postNotification( new Date(), "Disconnected (" + code + ")" );
     }
@@ -117,6 +158,9 @@ function initiateConnection() {
 
 function pageLoaded() {
     // handler for when this page loads
+    $.mobile.loading( 'show', { theme:"b", 
+                                text:"Connecting",
+                                textVisible: true } );
     initiateConnection();
 }
 

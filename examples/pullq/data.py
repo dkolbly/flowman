@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 from mongoengine import Document, StringField, ReferenceField
 from mongoengine import DateTimeField, IntField, ListField
 from mongoengine import DictField, BinaryField, FileField
@@ -6,8 +8,9 @@ from mongoengine import EmbeddedDocument, EmbeddedDocumentField
 
 from engine.datamodel import Item
 
-class Patient(Item):
-    # Electronic Medical Record number
-    emr = StringField( required=True )
-    # patient name
-    patientName = StringField( required=True )
+class Submission(Item):
+    # instead of pointing to an external source repo, you can attach a bundle
+    sourceRepo = StringField()
+    destRepo = StringField( required=True )
+    changeset = StringField( required=True )
+    pass

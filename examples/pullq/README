@@ -1,0 +1,17 @@
+
+                        pullq - A Pull Request Model
+                        ============================
+
+Introduction
+============
+
+This example is for a development organization that is using
+mercurial and a pull request model for submitting changes into
+the integration repo.
+
+There are two workflows defined, one for a normal pull request
+model and a second for a build release process.
+
+
+Setup
+=====

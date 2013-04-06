@@ -1,5 +1,3 @@
 RUN_DIR=$(readlink -f .run)
-
-export PYTHONPATH=PWD:/u/donovan/p/flowman/.run/AutobahnPython/autobahn
-
-export PYTHONPATH=${RUN_DIR}/lib/python2.7/site-packages/autobahn-0.5.14-py2.7.egg
+SRC_DIR=$(readlink -f src)
+export PYTHONPATH=${SRC_DIR}:${RUN_DIR}/lib/python2.7/site-packages/autobahn-0.6.0-py2.7.egg:${RUN_DIR}/lib/python2.7/site-packages/mongoengine-0.7.9-py2.7.egg

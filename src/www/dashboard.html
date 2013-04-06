@@ -28,15 +28,11 @@
 
 <div data-role="page" id="overview">
   <div data-role="header">
+<a id="loginButton" href="#login" data-rel="popup" data-role="button" data-inline="true" data-mini="true" data-icon="arrow-d" data-iconpos="right">Anonymous</a>
     <h1>Overview</h1>
-<a id="loginButton" href="#login" data-rel="popup" data-role="button" data-inline="true" data-mini="true" data-icon="arrow-d" data-iconpos="right" class="ui-btn-right">Anonymous</a>
+<a href="#options" data-role="button" data-inline="true" data-mini="true" data-icon="gear" data-iconpos="right">Options</a>
   </div>
   <div data-role="content">
-    <div data-role="collapsible" data-inset="false">
-    <h2>Projects <span id="projectCount" class="count ui-btn-up-c ui-btn-corner-all">0</span></h2>
-    <ul id="projectList" data-role="listview" data-inset="true" data-filter="true">
-    </ul>
-    </div>
     <div data-role="collapsible" data-inset="false">
     <h2>Requests</h2>
     <ul data-role="listview" data-inset="true" data-filter="true">
@@ -48,6 +44,7 @@
   </div>
  </div>
 <p><a href="#pullq" data-role="button" data-icon="arrow-r" data-iconpos="right">Pull Requests</a></p>
+
 
 
 <div data-role="popup" id="login">
@@ -72,6 +69,30 @@
   </div>
   <div data-role="content">
     These are the pull requests
+  </div>
+</div>
+
+<div data-role="page" id="options">
+  <div data-role="header">
+    <h1>Options</h1>
+<a href="#options" data-role="button" data-inline="true" data-mini="true" 
+   data-rel="back" data-icon="back" 
+   data-iconpos="right" class="ui-btn-right">OK</a>
+  </div>
+  <div data-role="content">
+    <h2>Role</h2>
+    <fieldset data-role="controlgroup">
+      <input type="radio" name="radio-choice" id="role0" value="user" 
+             checked="checked" />
+      <label for="role0">User</label>
+      <input type="radio" name="radio-choice" id="role1" value="oper" />
+      <label for="role1">Operator</label>
+      <input type="radio" name="radio-choice" id="role2" value="admin" />
+      <label for="role2">Administrator</label>
+    </fieldset>
+    <h2>Projects</h2>
+    <ul id="projectList" data-role="listview">
+    </ul>
   </div>
 </div>
 
