@@ -1,27 +1,17 @@
 
+body {
+    font-size: 10px;
+    font-family: sans;
+}
+
 h1 {
   font-family: sans;
   font-size: 18px;
 }
 
-.notification-close-box {
-    position: absolute;
-    left: 284px;
-    top: 0px;
-    width: 16px;
-    height: 16px;
-    background-image:url("closebox.png");
-    border:none;
-}
-
-.notification-close-box:hover {
-    position: absolute;
-    left: 284px;
-    top: 0px;
-    width: 16px;
-    height: 16px;
-    background-image:url("closebox2.png");
-    border:none;
+button#notificationClose .ui-button-text {
+    padding: 0;
+    border: 0;
 }
 
 #notification {
@@ -37,6 +27,10 @@ h1 {
     font-size: small;
 }
 
+button.notify-unread {
+    background: orange;
+}
+
 #notification table tr td {
   vertical-align: top;
 }
@@ -47,4 +41,33 @@ h1 {
 
 .notify-error {
     color: red;
+}
+
+.headline {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    background: #555566;
+}
+
+.headline h1 {
+    display: inline;
+    text-align: center;
+    color: white;
+    width: 100%;
+}
+
+fieldset {
+    padding: 0;
+    border: 0;
+    margin-top: 20px;
+}
+
+label, input {
+  display: block;
+}
+
+input.text { 
+    margin-bottom:12px; 
+    width:95%; 
+    padding: .4em; 
 }

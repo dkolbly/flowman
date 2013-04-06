@@ -1,4 +1,54 @@
-<html>
-<a href="dashboard.html">Dashboard</a>
-<a href="touch-2.1.1/index.html">Sencha Touch</a>
+<!DOCTYPE html>
+
+<html xmlns:t="http://twistedmatrix.com/ns/twisted.web.template/0.1">
+  <head>
+    <meta charset="utf-8" />
+    <title>Workflow Manager</title>
+    <link rel="stylesheet" type="text/css" href="generic.css" ></link>
+    <link rel="stylesheet" type="text/css" href="ext/jquery.mobile-1.3.0/jquery.mobile-1.3.0.css" ></link>
+    <link rel="stylesheet" type="text/css" href="ext/jquery-ui-1.10.2.custom/css/dark-hive/jquery-ui-1.10.2.custom.min.css" ></link>
+
+    <script src="ext/jquery-ui-1.10.2.custom/js/jquery-1.9.1.js" type="text/javascript"></script>
+    <script src="ext/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.min.js" type="text/javascript"></script>
+    <script src="ext/jquery.ui.touch-punch.min.js" type="text/javascript"></script>
+
+    <script src="ext/autobahn.min.js" type="text/javascript" ></script>
+    <script src="ext/mustache.js" type="text/javascript" ></script>
+    <script src="js/rpc.js" type="text/javascript" ></script>
+    <script src="js/main.js" type="text/javascript" ></script>
+  </head>
+  <body>
+    <div class="headline">
+      <button id="openOptions">Options</button>
+      <h1>Workflow Console</h1>
+      <button id="openNotification">0</button>
+      <button id="openLogin">Anonymous</button>
+    </div>
+
+    <div id="notification" style="display: none;">
+      <button id="notificationClose">Hide Notifications</button>
+      <table id="notificationList">
+        <tr><th>Time</th><th>Message</th></tr>
+      </table>
+    </div>
+
+    <a id="mobileLink" title="Go to Mobile version of this app" href="dash-mobile.html">Mobile UI</a>
+
+    <div id="options" title="Options">
+      <p>Configure your session options here</p>
+      
+    </div>
+
+    <div id="login" title="Login">
+      <p>Configure your credentials here</p>
+      <form>
+        <fieldset>
+          <label for="name">Login Name</label>
+          <input type="text" name="name" id="loginName" />
+          <label for="name">Password</label>
+          <input type="password" name="password" id="loginPassword" />
+        </fieldset>
+      </form>
+    </div>
+  </body>
 </html>
