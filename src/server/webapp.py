@@ -11,7 +11,8 @@ from autobahn.websocket import listenWS
 
 from server.auth import AuthenticationManager
 from server.notify import NotificationProtocol
-from server.dal import RestrictedView
+#from server.dal import RestrictedView
+from server.rest import setupREST
 
 AUTH_MGR = AuthenticationManager()
 
@@ -22,6 +23,8 @@ class NonBrowsableFile(File):
 root = NonBrowsableFile( "src/www" )
 root.putChild( "ext", NonBrowsableFile( ".run/www" ) )
 root.putChild( "images", NonBrowsableFile( ".run/www/jquery.mobile-1.3.0/images" ) )
+setupREST( root )
+
 
 import time
 
@@ -37,7 +40,8 @@ class WorkflowProtocol(WampCraServerProtocol):
 
     @exportRpc
     def getProjects( self ):
-        return threads.deferToThread( self.view.getProjects )
+        return []
+        #return threads.deferToThread( self.view.getProjects )
 
     def anonPermissions( self ):
         return { "rpc": [ { 'uri': "http://rscheme.org/workflow#getProjects",
@@ -74,6 +78,7 @@ class WorkflowProtocol(WampCraServerProtocol):
         self.clientAuthTimeout = 0
         self.clientAuthAllowAnonymous = True
         self.registerForPubSub( "http://rscheme.org/workflow#", prefixMatch=True )
+        self.registerForRpc( self, "http://rscheme.org/workflow#" )
         WampCraServerProtocol.onSessionOpen( self )
 
     def getAuthPermissions( self, authKey, authExtra ):
@@ -107,8 +112,6 @@ class WorkflowProtocol(WampCraServerProtocol):
         return threads.deferToThread( thunk )
 
     def onAuthenticated( self, authKey, perms ):
-        self.view = RestrictedView( authKey, perms )
-        self.registerForRpc( self, "http://rscheme.org/workflow#" )
         peer = self.peerstr
         if authKey is None:
             msg = "Anonymous connected from %s" % peer

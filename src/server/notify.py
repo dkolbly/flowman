@@ -11,6 +11,7 @@ class NotificationProtocol(WampClientProtocol):
         f = WampClientFactory( "ws://localhost:2001", debugWamp=True )
         f.protocol = NotificationProtocol
         connectWS(f)
+        deferLater( reactor, 1, lambda: cls.periodicDebugNotifier(0) )
 
     @classmethod
     def notify( cls, msg ):
@@ -26,11 +27,7 @@ class NotificationProtocol(WampClientProtocol):
         self.uri = "http://rscheme.org/workflow#notification"
         self.NOTIFIERS.append( self )
 
-    """
-    @inlineCallbacks
-    def foo( self ):
-        for i in range(100):
-            ev = [int(1000*time.time()),"Test %d" % i]
-            self.publish( self.uri, ev )
-            yield deferLater( reactor, 1, lambda: None )
-          """
+    @classmethod
+    def periodicDebugNotifier( cls, i ):
+        cls.notify( "Test %d" % i )
+        deferLater( reactor, 1, lambda: cls.periodicDebugNotifier(i+1) )

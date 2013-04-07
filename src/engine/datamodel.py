@@ -10,7 +10,7 @@ from mongoengine import EmbeddedDocument, EmbeddedDocumentField
 import datetime
 
 connect( "flowman" )
-
+        
 class Project(Document):
     meta = { "allow_inheritance": False,
              "indexes": ["name"] }
