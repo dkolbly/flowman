@@ -11,7 +11,9 @@ class NotificationProtocol(WampClientProtocol):
         f = WampClientFactory( "ws://localhost:2001", debugWamp=True )
         f.protocol = NotificationProtocol
         connectWS(f)
-        deferLater( reactor, 1, lambda: cls.periodicDebugNotifier(0) )
+        # uncomment this to produce a stream of debug notifications from
+        # the server
+        #deferLater( reactor, 1, lambda: cls.periodicDebugNotifier(0) )
 
     @classmethod
     def notify( cls, msg ):

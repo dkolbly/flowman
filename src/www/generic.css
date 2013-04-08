@@ -43,6 +43,22 @@ button.notify-unread {
     color: red;
 }
 
+.headlineright {
+    display: inline;
+    float: right;
+    margin-left: auto;
+    margin-right: 0px;
+}
+
+.loadingstatus {
+    color: white;
+    display: none;
+}
+
+.loadingstatus img {
+    vertical-align: middle;
+}
+
 .headline {
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;

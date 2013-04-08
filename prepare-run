@@ -8,6 +8,8 @@ mkdir -p ${RUN_DIR}/www
 
 unzip 3rdparty/jquery-ui-1.10.2.custom.zip -d ${RUN_DIR}/www
 unzip 3rdparty/jquery.mobile-1.3.0.zip  -d ${RUN_DIR}/www
+unzip 3rdparty/jquery.event.drag-2.2.zip -d ${RUN_DIR}/www
+
 cp 3rdparty/jquery-1.8.3.min.js ${RUN_DIR}/www
 cp 3rdparty/autobahn.min.js ${RUN_DIR}/www
 cp 3rdparty/jquery.ui.touch-punch.min.js ${RUN_DIR}/www
@@ -25,3 +27,9 @@ cp .run/ab/autobahn/dist/autobahn-0.6.0-py2.7.egg ${PYTHONPATH}
 git clone git://github.com/janl/mustache.js.git .run/mj
 (cd .run/mj ; git checkout ecc2e2a28f3ce663a3a2efd24d791e2266a32b08)
 cp .run/mj/mustache.js ${RUN_DIR}/www
+
+git clone git://github.com/mleibman/SlickGrid.git .run/sg
+(cd .run/sg ; git checkout 557b5db9e1ba635792c2b609c7b7dc8c189974e1)
+cp .run/sg/slick.*.js ${RUN_DIR}/www
+cp .run/sg/slick.*.css ${RUN_DIR}/www
+cp .run/sg/plugins/slick.*.js ${RUN_DIR}/www

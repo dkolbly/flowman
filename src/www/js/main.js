@@ -1,4 +1,19 @@
 
+loading = new function() {
+    this.shown = false;
+    this.show = function (msg) {
+        $("#loadingtext").text( msg );
+        if (!this.shown) {
+            this.shown = true;
+            $("#loading").fadeIn();
+        }
+    }
+    this.hide = function (msg) {
+        this.shown = false;
+        $("#loading").fadeOut();
+    }
+};
+
 function NotificationPopup() {
     var div = $("#notification");
     var button = $("#openNotification");
@@ -119,6 +134,49 @@ function pageLoaded() {
                                            secondary: "ui-icon-triangle-1-s"
                                        }
                                    } );
+
+    serverConnection = new ServerConnection( window.location.hostname );
+
+    // putting this here for now... should be in a page-specific section
+    tgrid = new View( "#tracksGrid" );
+};
+
+function View(selector) {
+    console.log( "creating view on selector " + selector );
+    this.data = [];
+    this.columns = [
+        { id:"x", 
+          name:"Name", 
+          field:"name" },
+        { id:"y", 
+          name:"Owner", 
+          field:"owner" }
+    ];
+    d0 = {};
+    d0["name"] = "donovan3";
+    d0["owner"] = "donovan";
+    d1 = {};
+    d1["name"] = "lane-beta";
+    d1["owner"] = "lane";
+    this.data[0] = d0;
+    this.data[1] = d1;
+
+    this.options = {
+        editable: false,
+        enabledAddRow: false,
+        enableCellNavigation: true,
+        autoHeight:true
+    };
+    this.sgrid = new Slick.Grid( "#tracksGrid", 
+                                 this.data,
+                                 this.columns,
+                                 this.options );
+    this.sgrid.setSelectionModel( new Slick.RowSelectionModel() );
+    var grid = this.sgrid;
+    this.sgrid.onSelectedRowsChanged.subscribe( function() {
+        console.log( "selected row change:" );
+        console.log( grid.getSelectedRows() );
+    } );
 };
 
 $(document).ready( pageLoaded );

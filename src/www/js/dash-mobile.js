@@ -58,7 +58,7 @@ function connected(session) {
                                 textVisible: true } );
     console.log( "Connected" );
     WorkflowSession = session;
-    makeSession( session );
+    rpcAddFunctions( session, session );
     session.didReceiveNotification = function (event) {
         postNotification( new Date(event[0]), event[1] );
     };

@@ -1,60 +1,3 @@
-
-function ServerConnection( hostname ) {
-    // now, connect to the server
-    var wsURI = "ws://" + hostname + ":2001";
-    var servercnx = this;
-
-    this.session = null;
-
-    this.didReceiveNotification = function (event) {
-        notificationPopup.post( new Date(event[0]), event[1] );
-    };
-
-    this.didAuthenticate  = function (user, perm) {
-        console.log( "didAuthenticate:" );
-        console.log( perm );
-        if (perm && perm.info) {
-            $("#loginButton .ui-btn-text").text( perm.info.label );
-            servercnx.permissions = perm;
-        } else {
-            $("#loginButton .ui-btn-text").text( "Anonymous" );
-        }
-        loading.hide();
-        reloadStateFromServer();
-    };
-
-    this.connected = function (session) {
-        loading.show( "Authenticating" );
-
-        servercnx.session = session;
-
-        rpcAddFunctions( session, servercnx );
-
-        notificationPopup.post( new Date(), "Connected..." );
-        loading.hide();
-
-        var user = $("#loginName").val();
-        if (user) {
-            session.userLogin( $("#loginName").val(),
-                               $("#loginPassword").val() );
-        } else {
-            session.anonymousLogin();
-        }
-    }
-
-    this.disconnected = function (code,reason) {
-        console.log( "Disconnected: " + code + " (" + reason + ")" );
-        loading.show( "Reconnecting" );
-        if (self.session) {
-            notificationPopup.post( new Date(), 
-                                    "Disconnected (" + code + ")" );
-        }
-        self.session = null;
-    }
-
-    ab.connect( wsURI, this.connected, this.disconnected );
-}
-
 function rpcAddFunctions( session, delegate ) {
     session.anonymousLogin = function () {
         console.log( "doing anonymousLogin()" );
@@ -82,10 +25,10 @@ function rpcAddFunctions( session, delegate ) {
                         console.log( "failed auth:" );
                         console.log( x );
                         if (x.uri == "http://api.wamp.ws/error#invalid-signature") {
-                            notificationPopup.post( new Date(),
-                                                    "Incorrect password",
-                                                    "notify-error",
-                                                    x.desc );
+                            postNotification( new Date(),
+                                              "Incorrect password",
+                                              "notify-error",
+                                              x.desc );
                         }
                     } );
             },
@@ -93,10 +36,10 @@ function rpcAddFunctions( session, delegate ) {
                 console.log( "failed login:" );
                 console.log( x );
                 if (x.uri == "http://api.wamp.ws/error#no-such-authkey") {
-                    notificationPopup.post( new Date(), 
-                                            "Unknown user \"" + user + "\"",
-                                            "notify-error",
-                                            x.desc );
+                    postNotification( new Date(), 
+                                      "Unknown user \"" + user + "\"",
+                                      "notify-error",
+                                      x.desc );
                     /*for (var i=0; i<x.detail.length; i++) {
                         console.log( x.detail[i] );
                     }*/
