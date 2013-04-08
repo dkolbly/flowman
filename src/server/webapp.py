@@ -11,7 +11,7 @@ from autobahn.websocket import listenWS
 
 from server.auth import AuthenticationManager
 from server.notify import NotificationProtocol
-#from server.dal import RestrictedView
+from server.dal import createItem
 from server.rest import setupREST
 
 AUTH_MGR = AuthenticationManager()
@@ -37,6 +37,12 @@ class WorkflowProtocol(WampCraServerProtocol):
     @exportRpc
     def foo( self, x, y ):
         return [x,y,x]
+
+    @exportRpc
+    def createItem( self, inProject, inFolder, parms ):
+        def thunk():
+            return createItem( inProject, inFolder, parms )
+        return threads.deferToThread( thunk )
 
     @exportRpc
     def getProjects( self ):

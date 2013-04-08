@@ -145,10 +145,10 @@ function View(selector) {
     console.log( "creating view on selector " + selector );
     this.data = [];
     this.columns = [
-        { id:"x", 
+        { id:"name", 
           name:"Name", 
           field:"name" },
-        { id:"y", 
+        { id:"owner", 
           name:"Owner", 
           field:"owner" }
     ];

@@ -3,7 +3,7 @@
 from mongoengine import connect
 from mongoengine import Document, StringField, ReferenceField
 from mongoengine import DateTimeField, IntField, ListField
-from mongoengine import DictField, BinaryField, FileField
+from mongoengine import DictField, BinaryField, FileField, BooleanField
 from mongoengine import SequenceField
 from mongoengine import EmbeddedDocument, EmbeddedDocumentField
 
@@ -56,12 +56,13 @@ class Item(Document):
              "allow_inheritance": True }
     inFolder = ReferenceField( "Folder", required=True, dbref=False )
     itemInFolder = IntField( required=True )
-    createdBy = ReferenceField( "User", required=True, dbref=False )
+    owner = ReferenceField( "User", required=True, dbref=False )
     audit = ListField( ReferenceField( "Audit", dbref=False ) )
     label = StringField( required=True )
     ctime = DateTimeField( required=True )
     mtime = DateTimeField( required=True )
     dtime = DateTimeField()
+    active = BooleanField( required=True, default=True )
     state = DictField()
     def __init__( self, **kw ):
         super( Item, self ).__init__( **kw )

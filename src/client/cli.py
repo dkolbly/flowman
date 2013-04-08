@@ -8,6 +8,18 @@ parser = argparse.ArgumentParser()
 parser.add_argument( "--host", "-H" )
 parser.add_argument( "--user", "-U" )
 parser.add_argument( "--password", "-P" )
+sub = parser.add_subparsers( help="sub-command help" )
+
+# pull in pluggable CLI commands
+
+APPLICATION = "pullq"
+
+m = __import__( APPLICATION + ".cli" ).cli
+for k, v in m.__commands__.items():
+    sp = sub.add_parser( k, help=v.help )
+    sp.set_defaults( subcommand=v )
+    v.add_arguments( sp )
+
 args = parser.parse_args()
 
 def getAuthTuple( a ):
@@ -38,9 +50,13 @@ class NotificationTailer(object):
 cnx = client.rpc.Connection( (args.host or 'localhost'),
                              getAuthTuple(args) )
 cnx.ready()
-NotificationTailer( cnx )
-print `cnx.rpc( 'wf:foo', 3, 4 )`
-import time
 
-time.sleep(60)
+print `args.subcommand`
+args.subcommand( args ).run( cnx )
+
+#NotificationTailer( cnx )
+#print `cnx.rpc( 'wf:foo', 3, 4 )`
+#import time
+
+#time.sleep(60)
 

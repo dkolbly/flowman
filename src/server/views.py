@@ -95,6 +95,7 @@ class Watch(object):
         for k in new_keys - old_keys:
             crud.setdefault( 'created', [] ).append( entry( k, new[k] ) )
         self.reported = self.selection
+        self.dirty = False
         return crud
 
 class View(object):
@@ -106,4 +107,3 @@ class View(object):
 
 class UserView(View):
     subject = User
-
