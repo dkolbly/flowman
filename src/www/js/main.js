@@ -167,6 +167,7 @@ function View(selector) {
         enableCellNavigation: true,
         autoHeight:true
     };
+
     this.sgrid = new Slick.Grid( "#tracksGrid", 
                                  this.data,
                                  this.columns,
@@ -176,6 +177,20 @@ function View(selector) {
     this.sgrid.onSelectedRowsChanged.subscribe( function() {
         console.log( "selected row change:" );
         console.log( grid.getSelectedRows() );
+
+        // in here, 'this' refers to the grid (?)
+        console.log( "this:" );
+        console.log( this );
+        var cell = this.getActiveCell();
+        var canvas = $(this.getCanvasNode());
+        // clear the "active" class from everything
+        canvas.find( ".slick-row" ).removeClass("activerow");
+        // add it to the new things
+        var sel = this.getSelectedRows();
+        for (var i=0; i<sel.length; i++) {
+            canvas.find( ".slick-row[row="+sel[i]+"]").addClass("activerow");
+        }
+
     } );
 };
 

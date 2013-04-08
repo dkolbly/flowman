@@ -87,3 +87,7 @@ input.text {
     width:95%; 
     padding: .4em; 
 }
+
+.slick-row.active {
+    background: #ff0000;
+}
