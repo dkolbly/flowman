@@ -126,10 +126,27 @@ tr.detailcell {
     margin: 0;
 }
 
+.summarytable tbody tr.selected {
+    background: -webkit-linear-gradient(top, #e3d7d7, #2080f8);
+}
+
+.summarytable tbody tr.selected {
+    background: -webkit-linear-gradient(top, #e3d7d7, #2080f8);
+}
+
+/* .summarytable tbody tr:hover {
+    background: #ff8080;
+} */
+
+.summarytable tbody tr.selected td {
+    background-color: transparent;
+}
+
 .summarytable tr.detailrow td {
     border: 0;
     margin: 0;
 }
+
 
 /* the detail view div */
 

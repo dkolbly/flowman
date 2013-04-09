@@ -162,24 +162,62 @@ function View(selector) {
     var div = $(selector);
     div.append( Mustache.render( viewTemplate, viewSpec ) );
     var tbody = $(div).find("table tbody");
-
+    this.selection = [];
+    
     var row = { id: "v99_1",
                 cols: [ { "value": "<a href='#'>a54f0d69</a>" },
                         { "value": "-" },
                         { "value": "A silly thing, nothing really" } ] };
-    var rowdom = $(Mustache.render( viewSummaryRowTemplate, row ));
-    rowdom.appendTo( tbody );
+    xr = [];
+    xr[0] = new ExpandableRow( this, row, tbody );
 
     var row = { id: "v99_2",
                 cols: [ { "value": "<a href='#'>12345678</a>" },
                         { "value": "?" },
                         { "value": "What up homey?" } ] };
-    var rowdom = $(Mustache.render( viewSummaryRowTemplate, row ));
-    rowdom.appendTo( tbody );
+    xr[1] = new ExpandableRow( this, row, tbody );
 };
 
+function ExpandableRow( view, row, tbody ) {
+    var me = this;
+    var rowdom = $(Mustache.render( viewSummaryRowTemplate, row ));
+    rowdom.appendTo( tbody );
+    rowdom.click( function () {
+        console.log( "Row click!" );
+        console.log( this );
+        $(view.selection).removeClass( "selected" );
+        for (var i=0; i<view.selection.length; i++) {
+            view.selection[i].hide();
+        }
+        $(this).addClass( "selected" );
+        view.selection = [me];
+        me.show();
+    } );
+    var detaildom = $(Mustache.render( viewDetailTemplateFilled, row ));
+    detaildom.appendTo( tbody );
+    detaildom.hide();
+
+    this.show = function () {
+        var detailrow = $("#" + row.id + "_detail");
+        var detaildiv = $(detailrow).find(".detailview");
+        detailrow.show();
+        detaildiv.hide();
+        detaildiv.slideDown();
+    }
+
+    this.hide = function () {
+        var detailrow = $("#" + row.id + "_detail");
+        var detaildiv = $(detailrow).find(".detailview");
+        
+        detaildiv.slideUp( function() {
+            detaildiv.hide();    
+        } );
+    }
+}
+
+
 viewTemplate = '\
-<table class="sumarytable" id="{{id}}">\
+<table class="summarytable" id="{{id}}">\
   <tr>{{#cols}}<th>{{label}}</th>{{/cols}}</tr>\
 </table>';
 
@@ -187,4 +225,62 @@ viewSummaryRowTemplate = '\
 <tr id="{{id}}">\
   {{#cols}}<td>{{&value}}</td>{{/cols}}\
 </tr>';
+
+viewDetailTemplate = '\
+<tr id="{{id}}_detail" class="detailrow">\
+  <td colspan="4" class="detailcell">\
+    <div class="detailview">\
+    </div>\
+  </td>\
+</tr>';
+
+viewDetailTemplateFilled = '\
+<tr id="{{id}}_detail" class="detailrow">\
+  <td colspan="4" class="detailcell">\
+    <div class="detailview">\
+      <h3>Exceptions:</h3>\
+      <table>\
+        <tr>\
+          <th>C</th>\
+          <th>Exception</th>\
+        </tr>\
+        <tr>\
+          <td>?</td>\
+          <td><a href="#">Case 1234</a> is not closed</td>\
+        </tr>\
+        <tr>\
+          <td>E</td>\
+          <td><a href="#">K4044</a> has not been approved</td>\
+        </tr>\
+        <tr>\
+          <td>E</td>\
+          <td>Preflight build <a href="#">842pf</a> failed</td>\
+        </tr>\
+        <tr>\
+          <td>!</td>\
+          <td>Merge conflict</td>\
+        </tr>\
+      </table>\
+      <h3>Changesets:</h3>\
+      <table>\
+        <tr>\
+          <th>Id</th>\
+          <th>S</th>\
+          <th>Comment</th>\
+        </tr>\
+        <tr>\
+          <td><a href="#">a54f0d69</a></td>\
+          <td>-</td>\
+          <td>{case:8688} foo the bar</td>\
+        </tr>\
+        <tr>\
+          <td><a href="#">12345678</a></td>\
+          <td>X</td>\
+          <td>blech</td>\
+        </tr>\
+      </table>\
+    </div>\
+  </td>\
+</tr>';
+
 $(document).ready( pageLoaded );
