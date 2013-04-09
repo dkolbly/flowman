@@ -6,8 +6,10 @@
 #  in engine.datamodel and the application's connection
 #  to it, which wants things like triggerable views
 
-import engine.datamodel
+import datetime
 
+import engine.datamodel
+from engine.loader import loadDefinition
 from mongoengine import Document
 from engine.datamodel import Project, User, Workflow, Folder, Item
 from engine.datamodel import Attachment
@@ -134,26 +136,49 @@ class RestrictedView(object):
 
 workflowDefn = {}
 
-def loadDefinition( n ):
-    x = n.split('.')
-    m = __import__( '.'.join(x[:-1]) )
-    for step in x[1:]:
-        m = getattr( m, step )
-    return m
-
 def getWorkflowForFolder( f ):
     if f in workflowDefn:
         return workflowDefn[f]
     x = loadDefinition( f.follows.defn )
-    print `x`
     w = x(f)
     workflowDefn[f] = w
     return w
 
-def createItem( inProject, inFolder, parms ):
-    p = Project.objects.get( name=inProject )
+class InvocationContext(object):
+    def __init__( self, projectName, user, role ):
+        self.project = projectName
+        self.user = user
+        self.role = role
+    def getUser( self ):
+        return User.objects.get( login=self.user )
+    def getProject( self ):
+        return Project.objects.get( name=self.project )
+
+def createItem( ctx, className, inFolder, parms ):
+    p = ctx.getProject()
     f = Folder.objects.get( inProject=p, name=inFolder )
     print "Folder %r follows %r : %s" % (f,f.follows,f.follows.defn)
     wfInstance = getWorkflowForFolder( f )
     print "==> %r" % wfInstance
-    wfInstance.create( parms )
+    x = wfInstance.create( className, parms )
+    x.inFolder = f
+    x.itemInFolder = f.count
+    if x.label is None:
+        x.label = f.itemPattern % dict( itemInFolder=f.count )
+    u = ctx.getUser()
+    print "%r did create: %r" % (u,x,)
+    x.owner = u
+    now = datetime.datetime.now()
+    f.count += 1
+    f.save()
+    a = Audit( owner=u,
+               openTime=now,
+               closeTime=now,
+               tags=['wf:create'] )
+    a.save()
+    x.audit = [a]
+    x.ctime = now
+    x.mtime = now
+    x.save()
+    TM.created( x )
+

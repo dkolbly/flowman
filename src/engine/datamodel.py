@@ -64,15 +64,15 @@ class Item(Document):
     dtime = DateTimeField()
     active = BooleanField( required=True, default=True )
     state = DictField()
-    def __init__( self, **kw ):
-        super( Item, self ).__init__( **kw )
-        t = datetime.datetime.now()
-        f = self.inFolder
-        f.count += 1
-        self.ctime = t
-        self.mtime = t
-        self.label = f.itemPattern % dict( itemInFolder=f.count )
-        self.itemInFolder = f.count
+    #def __init__( self, **kw ):
+    #    super( Item, self ).__init__( **kw )
+    #    t = datetime.datetime.now()
+    #    f = self.inFolder
+    #    f.count += 1
+    #    self.ctime = t
+    #    self.mtime = t
+    #    self.label = f.itemPattern % dict( itemInFolder=f.count )
+    #    self.itemInFolder = f.count
     def __repr__( self ):
         return "<Item %s/%s/%s>" % (self.inFolder.inProject.name,
                                     self.inFolder.name, 
@@ -84,11 +84,12 @@ class Audit(Document):
     openTime = DateTimeField( required=True )
     closeTime = DateTimeField()
     attachments = ListField( ReferenceField( "Attachment", dbref=False ) )
+    tags = ListField( StringField() )
+    pass
 
 class Attachment(Document):
     meta = { "allow_inheritance": True }
     mimetype = StringField( required=True )
-    tags = ListField( StringField() )
     content = FileField( required=True )
     pass
 

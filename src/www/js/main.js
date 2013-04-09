@@ -143,55 +143,48 @@ function pageLoaded() {
 
 function View(selector) {
     console.log( "creating view on selector " + selector );
-    this.data = [];
-    this.columns = [
-        { id:"name", 
-          name:"Name", 
-          field:"name" },
-        { id:"owner", 
-          name:"Owner", 
-          field:"owner" }
-    ];
+    var data = [];
     d0 = {};
+    d0["id"] = "m101";
     d0["name"] = "donovan3";
     d0["owner"] = "donovan";
     d1 = {};
+    d1["id"] = "m444";
     d1["name"] = "lane-beta";
     d1["owner"] = "lane";
-    this.data[0] = d0;
-    this.data[1] = d1;
+    data[0] = d0;
+    data[1] = d1;
 
-    this.options = {
-        editable: false,
-        enabledAddRow: false,
-        enableCellNavigation: true,
-        autoHeight:true
-    };
+    var viewSpec = { id: "v99",
+                     cols: [ { label: "Foo" },
+                             { label: "Bar" },
+                             { label: "Comment" } ] };
+    var div = $(selector);
+    div.append( Mustache.render( viewTemplate, viewSpec ) );
+    var tbody = $(div).find("table tbody");
 
-    this.sgrid = new Slick.Grid( "#tracksGrid", 
-                                 this.data,
-                                 this.columns,
-                                 this.options );
-    this.sgrid.setSelectionModel( new Slick.RowSelectionModel() );
-    var grid = this.sgrid;
-    this.sgrid.onSelectedRowsChanged.subscribe( function() {
-        console.log( "selected row change:" );
-        console.log( grid.getSelectedRows() );
+    var row = { id: "v99_1",
+                cols: [ { "value": "<a href='#'>a54f0d69</a>" },
+                        { "value": "-" },
+                        { "value": "A silly thing, nothing really" } ] };
+    var rowdom = $(Mustache.render( viewSummaryRowTemplate, row ));
+    rowdom.appendTo( tbody );
 
-        // in here, 'this' refers to the grid (?)
-        console.log( "this:" );
-        console.log( this );
-        var cell = this.getActiveCell();
-        var canvas = $(this.getCanvasNode());
-        // clear the "active" class from everything
-        canvas.find( ".slick-row" ).removeClass("activerow");
-        // add it to the new things
-        var sel = this.getSelectedRows();
-        for (var i=0; i<sel.length; i++) {
-            canvas.find( ".slick-row[row="+sel[i]+"]").addClass("activerow");
-        }
-
-    } );
+    var row = { id: "v99_2",
+                cols: [ { "value": "<a href='#'>12345678</a>" },
+                        { "value": "?" },
+                        { "value": "What up homey?" } ] };
+    var rowdom = $(Mustache.render( viewSummaryRowTemplate, row ));
+    rowdom.appendTo( tbody );
 };
 
+viewTemplate = '\
+<table class="sumarytable" id="{{id}}">\
+  <tr>{{#cols}}<th>{{label}}</th>{{/cols}}</tr>\
+</table>';
+
+viewSummaryRowTemplate = '\
+<tr id="{{id}}">\
+  {{#cols}}<td>{{&value}}</td>{{/cols}}\
+</tr>';
 $(document).ready( pageLoaded );

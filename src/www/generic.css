@@ -88,6 +88,66 @@ input.text {
     padding: .4em; 
 }
 
-.slick-row.active {
-    background: #ff0000;
+.slick-row.selected {
+    /*background: #ff0000;*/
+  background: -webkit-linear-gradient(top, #1a82f7, #2F2727);
+}
+
+.slick-row.selected .cell-selection {
+    background-color: transparent;
+}
+
+/* headers for the summary view */
+
+table.summarytable {
+    border-spacing: 0;
+}
+
+.summarytable tr th {
+    text-align: left;
+}
+
+tr.detailcell {
+    border: 0px;
+}
+
+.summarytable tr td {
+    margin-left: 2px;
+    margin-right: 2px;
+    border-right: 1px solid black;
+}
+
+.summarytable tr.selected {
+    background: #ccc;
+}
+
+.summarytable tr.detailrow {
+    border: 0;
+    margin: 0;
+}
+
+.summarytable tr.detailrow td {
+    border: 0;
+    margin: 0;
+}
+
+/* the detail view div */
+
+div.detailview {
+    margin-left: 50px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    background: #888;
+}
+
+div.detailview table {
+    margin-left: 20px;
+    background: #ccc;
+}
+
+div.detailview table tr even {
+}
+
+div.detailview h3 {
+  margin-left: 3px;
 }

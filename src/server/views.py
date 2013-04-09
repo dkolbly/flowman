@@ -1,7 +1,13 @@
 from engine.datamodel import User
+from engine.loader import loadDefinition
 from server.dal import TM
 from hashlib import sha1
 from bson import BSON
+from bson.objectid import ObjectId
+from copy import deepcopy
+import datetime
+import time
+
 
 class Watch(object):
     def __init__( self, view, parms ):
@@ -59,6 +65,7 @@ class Watch(object):
         else:
             if self.fullPredicate( x ):
                 self.__markDirty()
+
     def __markDirty( self ):
         self.dirty = True
         print "Notify %r of %r on %r" % (self, event, item)
@@ -68,42 +75,124 @@ class Watch(object):
         for x in self.view.subject.objects( **self.prefilter ):
             if self.postPredicate(x):
                 v = BSON.encode(x.to_mongo())
-                result[ x.id ] = v
+                result[ x.id ] = (v,x)
         return result
-
-    def initialize( self ):
-        self.selection = self.__run()
 
     def update( self ):
         """
         Return a create/update/delete (CRUD) spec for this watch
         """
+        if self.dirty:
+            self.selection = self.__run()
+            self.dirty = False
         old = self.reported
         new = self.selection
         old_keys = set( old.keys() )
         new_keys = set( new.keys() )
         crud = {}
-        def key(k):
-            return "m%s" % k
-        def entry(k,v):
-            return (key(k),BSON.decode(v))
+        #def key(k):
+        #    return "m%s" % k
+        #def entry(k,v):
+        #    return (k,BSON.decode(v))
         for k in old_keys & new_keys:
             if old[k] != new[k]:
-                crud.setdefault( 'updated', [] ).append( entry( k, new[k] ) )
+                h = self.view.headlineform( k, *new[k] )
+                crud.setdefault( 'updated', {} )[k] = h
         for k in old_keys - new_keys:
-            crud.setdefault( 'deleted', [] ).append( key(k) )
+            crud.setdefault( 'deleted', [] ).append( k )
         for k in new_keys - old_keys:
-            crud.setdefault( 'created', [] ).append( entry( k, new[k] ) )
+            h = self.view.headlineform( k, *new[k] )
+            crud.setdefault( 'created', {} )[k] = h
         self.reported = self.selection
-        self.dirty = False
+        #print "================ CRUD "
+        crud = makeJSONable( crud )
+        #print `crud`
         return crud
+        
+def makeJSONable( d ):
+    def rec(x):
+        #print "rec ==> %r %r" % (type(x),x,)
+        if isinstance(x,list):
+            return map(rec,x)
+        elif isinstance(x,tuple):
+            return tuple(map(rec,x))
+        elif isinstance(x,dict):
+            return dict( [(rec(k),rec(v)) for k, v in x.items()] )
+        elif isinstance(x,ObjectId):
+            return "mongo-oid-%s" % x
+        elif isinstance(x,datetime.datetime):
+            return (time.mktime( x.timetuple() ) * 1000) \
+                + (x.microsecond / 1000);
+        else:
+            return x
+    return rec( deepcopy(d) )
+            
 
 class View(object):
-    def watch( self, predicate ):
+    def watch( self, parms ):
         """
         Create a watch on a view
         """
-        return Watch( self, predicate )
+        return Watch( self, parms )
+    def headlineform( self, k, b, x ):
+        """Return the headline form (JSON) for a given object.
+        The default implementation just returns all the top-level objects.
+        
+        There are three arguments, the object [mongo] id,
+        the BSON representation, and the MongoEngine object
+        """
+        d = {}
+        for k, v in BSON.decode( b ).items():
+            if k[0] != '_':
+                d[k] = v
+        return d
+    def detailform( self, k, b, x ):
+        """Return the detail form (JSON) for a given object.
+        The default implementation is the same as the headline form."""
+        return self.headlineform( k, b, x )
 
 class UserView(View):
     subject = User
+
+class ViewMetaFactory(object):
+    def __init__( self ):
+        self.factoryCache = {}
+    def getFactory( self, factoryName ):
+        if factoryName in self.factoryCache:
+            return self.factoryCache[factoryName]
+        if factoryName == "UserView":
+            c = UserView
+        else:
+            c = loadDefinition( factoryName )
+        assert issubclass( c, View )
+        self.factoryCache[factoryName] = c
+        return c
+
+    def __call__( self, ctx, factoryName, parms ):
+        c = self.getFactory( factoryName )
+        return c().watch( parms )
+
+#from autobahn.wamp import WampClientFactory, WampClientProtocol
+#from twisted.internet.defer import inlineCallbacks, returnValue
+#from twisted.internet.task import deferLater
+#from autobahn.websocket import connectWS
+
+openView = ViewMetaFactory()
+from autobahn.wamp import exportSub, exportPub
+
+class WatchService(object):
+    @exportSub( "watch/", True )
+    def subscribe( self, topicUriPrefix, topicUriSuffix ):
+        parts = topicUriSuffix.split('/')
+        watchId = int(parts[0])
+        print "client subscribing to [%d]" % watchId
+        # DE-NIED!
+        return False
+
+    @exportPub( "watch", True )
+    def publish( self, topicUriPrefix, topicUriSuffix, event ):
+        print "client wants to publish %r %r : %r" % (topicUriPrefix,
+                                                      topicUriSuffix,
+                                                      event)
+        # let it through
+        return event
