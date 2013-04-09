@@ -8,6 +8,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument( "--host", "-H" )
 parser.add_argument( "--user", "-U" )
 parser.add_argument( "--password", "-P" )
+parser.add_argument( "--project", "-p" )
+parser.add_argument( "--role", "-R" )
+
 sub = parser.add_subparsers( help="sub-command help" )
 
 # pull in pluggable CLI commands
@@ -50,8 +53,9 @@ class NotificationTailer(object):
 cnx = client.rpc.Connection( (args.host or 'localhost'),
                              getAuthTuple(args) )
 cnx.ready()
+x = cnx.rpc( "wf:setContext", args.project, (args.role or "default" ) )
+#print "context => %r" % (x,)
 
-print `args.subcommand`
 args.subcommand( args ).run( cnx )
 
 #NotificationTailer( cnx )

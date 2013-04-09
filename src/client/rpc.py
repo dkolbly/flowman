@@ -6,6 +6,18 @@ from autobahn.websocket import connectWS
 from autobahn.wamp import WampClientFactory, WampCraClientProtocol
 import threading
 
+class RPCError(Exception):
+    def __init__( self, errValue ):
+        uri, desc, details = errValue
+        self.__errValue = errValue
+        print "================================================="
+        print uri
+        print desc
+        for i in details:
+            print i
+        print "================================================="
+        Exception.__init__( self, uri )
+
 class AuthenticationError(Exception):
     def __init__( self, errValue ):
         uri, desc, details = errValue

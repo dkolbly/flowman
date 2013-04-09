@@ -11,7 +11,8 @@ from autobahn.websocket import listenWS
 
 from server.auth import AuthenticationManager
 from server.notify import NotificationProtocol
-from server.dal import createItem
+from server.dal import createItem, InvocationContext
+from server.views import openView, WatchService
 from server.rest import setupREST
 
 AUTH_MGR = AuthenticationManager()
@@ -32,6 +33,11 @@ class WorkflowProtocol(WampCraServerProtocol):
 
     def onConnect( self, c ):
         print "connection from %r" % (c.peer,)
+        self.watches = {}
+        self.nextWatchId = 100
+        self.watchService = WatchService()
+        self.registerHandlerForPubSub( self.watchService, 
+                                       "http://rscheme.org/workflow#" )
         return WampCraServerProtocol.onConnect( self, c )
 
     @exportRpc
@@ -39,9 +45,39 @@ class WorkflowProtocol(WampCraServerProtocol):
         return [x,y,x]
 
     @exportRpc
-    def createItem( self, inProject, inFolder, parms ):
+    def setContext( self, projectName, roleName ):
         def thunk():
-            return createItem( inProject, inFolder, parms )
+            self.context = InvocationContext( self.currentUser,
+                                              projectName,
+                                              roleName )
+            return "ok"
+        return threads.deferToThread( thunk )
+
+    @exportRpc
+    def refreshView( self, watchId ):
+        w = self.watches[ watchId ]
+        def thunk():
+            x = w.update()
+            x['id'] = watchId
+            return x
+        return threads.deferToThread( thunk )
+
+    @exportRpc
+    def openView( self, factoryName, parms ):
+        watchId = self.nextWatchId
+        self.nextWatchId += 1
+        def thunk():
+            w = openView( self.context, factoryName, parms )
+            self.watches[ watchId ] = w
+            x = w.update()
+            x['id'] = watchId
+            return x
+        return threads.deferToThread( thunk )
+
+    @exportRpc
+    def createItem( self, className, inFolder, parms ):
+        def thunk():
+            return createItem( self.context, className, inFolder, parms )
         return threads.deferToThread( thunk )
 
     @exportRpc
@@ -123,6 +159,8 @@ class WorkflowProtocol(WampCraServerProtocol):
             msg = "Anonymous connected from %s" % peer
         else:
             msg = "%s connected from %s" % (authKey,peer)
+        self.currentUser = authKey
+        self.currentRole = 'default'
         deferLater( reactor, 1, lambda: NotificationProtocol.notify(msg) )
 
 

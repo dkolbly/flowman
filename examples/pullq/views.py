@@ -22,3 +22,9 @@ class TrackView(View):
         else:
             return lambda x: x.active
 
+    def headlineform( self, k, b, x ):
+        return { "project": x.inFolder.inProject.name,
+                 "folder": x.inFolder.name,
+                 "label": x.label,
+                 "owner": { "login": x.owner.login,
+                            "fullname": x.owner.label } }
