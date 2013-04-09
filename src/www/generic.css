@@ -16,10 +16,11 @@ button#notificationClose .ui-button-text {
 
 #notification {
     border-radius: 5px;
-    position: fixed;
+    /*position: fixed;*/
+    float: right;
     top: 3px;
     left: 3px;
-    width: 300px;
+    width: 400px;
     background: #eecc2b;
     opacity: 0.9;
     z-index: 100;
@@ -33,6 +34,10 @@ button.notify-unread {
 
 #notification table tr td {
   vertical-align: top;
+}
+
+#notification table tbody tr:nth-child(even) {
+    background-color: transparent;
 }
 
 #notification table tr th {
@@ -114,7 +119,7 @@ tr.detailcell {
 .summarytable tr td {
     margin-left: 2px;
     margin-right: 2px;
-    border-right: 1px solid black;
+    border-right: 1px solid white;
 }
 
 .summarytable tr.selected {
@@ -124,6 +129,22 @@ tr.detailcell {
 .summarytable tr.detailrow {
     border: 0;
     margin: 0;
+}
+
+.summarytable tbody tr.selected {
+    background: -webkit-linear-gradient(top, #e3d7d7, #2080f8);
+}
+
+.summarytable tbody tr.selected {
+    background: -webkit-linear-gradient(top, #e3d7d7, #2080f8);
+}
+
+/* .summarytable tbody tr:hover {
+    background: #ff8080;
+} */
+
+.summarytable tbody tr.selected td {
+    background-color: transparent;
 }
 
 .summarytable tr.detailrow td {
@@ -143,9 +164,7 @@ div.detailview {
 div.detailview table {
     margin-left: 20px;
     background: #ccc;
-}
-
-div.detailview table tr even {
+    width: 400px;
 }
 
 div.detailview h3 {

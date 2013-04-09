@@ -68,7 +68,8 @@ class Watch(object):
 
     def __markDirty( self ):
         self.dirty = True
-        print "Notify %r of %r on %r" % (self, event, item)
+        # TODO: tickle the client side of WatchService, so that
+        # our client can get a notification
 
     def __run( self ):
         result = {}
