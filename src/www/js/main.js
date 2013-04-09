@@ -183,34 +183,38 @@ function ExpandableRow( view, row, tbody ) {
     var rowdom = $(Mustache.render( viewSummaryRowTemplate, row ));
     rowdom.appendTo( tbody );
     rowdom.click( function () {
-        console.log( "Row click!" );
-        console.log( this );
-        $(view.selection).removeClass( "selected" );
+        var unclick = false;
+        if ((view.selection.length == 1) && (view.selection[0] == me)) {
+            unclick = true;
+        }
+
         for (var i=0; i<view.selection.length; i++) {
             view.selection[i].hide();
         }
-        $(this).addClass( "selected" );
-        view.selection = [me];
-        me.show();
+        if (unclick) {
+            view.selection = [];
+            me.hide();
+        } else {
+            view.selection = [me];
+            me.show();
+        }
     } );
     var detaildom = $(Mustache.render( viewDetailTemplateFilled, row ));
     detaildom.appendTo( tbody );
     detaildom.hide();
+    var detaildiv = $(detaildom).find(".detailview");
 
     this.show = function () {
-        var detailrow = $("#" + row.id + "_detail");
-        var detaildiv = $(detailrow).find(".detailview");
-        detailrow.show();
+        rowdom.addClass( "selected" );
+        detaildom.show();
         detaildiv.hide();
         detaildiv.slideDown();
     }
 
     this.hide = function () {
-        var detailrow = $("#" + row.id + "_detail");
-        var detaildiv = $(detailrow).find(".detailview");
-        
-        detaildiv.slideUp( function() {
-            detaildiv.hide();    
+        rowdom.removeClass( "selected" );
+        detaildiv.slideUp( 400, function() {
+            detaildom.hide();
         } );
     }
 }
