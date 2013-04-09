@@ -155,16 +155,6 @@ function View(selector) {
 
     var index = {};
     var data = [];
-    d0 = {};
-    d0["id"] = "m101";
-    d0["name"] = "donovan3";
-    d0["owner"] = "donovan";
-    d1 = {};
-    d1["id"] = "m444";
-    d1["name"] = "lane-beta";
-    d1["owner"] = "lane";
-    data[0] = d0;
-    data[1] = d1;
 
     var viewSpec = { id: "v99",
                      cols: [ { "key": "project", "label": "Project" },
@@ -176,6 +166,11 @@ function View(selector) {
                              { "key": "owner.fullname", 
                                "label": "Full Name" },
                              { "key": "url", "label": "Source Repository" } ] };
+    // build getters
+    for (var i=0; i<viewSpec.cols.length; i++) {
+        var expr = "x." + viewSpec.cols[i].key;
+        viewSpec.cols[i].getter = eval( "(function(x){return " + expr + "})" );
+    }
 
     var div = $(selector);
     div.append( Mustache.render( viewTemplate, viewSpec ) );
@@ -197,7 +192,7 @@ function View(selector) {
                 var v = val.created[k];
                 var cols = [];
                 for (var i = 0; i<viewSpec.cols.length; i++) {
-                    var cell = v[viewSpec.cols[i].key]
+                    var cell = viewSpec.cols[i].getter(v);
                     if ((cell === undefined) || (cell === null)) {
                         cols[i] = { value: "--" }
                     } else {
@@ -241,6 +236,11 @@ function ExpandableRow( view, row, tbody ) {
     detaildom.appendTo( tbody );
     detaildom.hide();
     var detaildiv = $(detaildom).find(".detailview");
+    detaildiv.find(".actionbutton")
+        .button()
+        .click( function(event) {
+            console.log( "Action = " + this.href );
+        } );
 
     this.show = function () {
         rowdom.addClass( "selected" );
@@ -321,6 +321,10 @@ viewDetailTemplateFilled = '\
           <td>blech</td>\
         </tr>\
       </table>\
+      <h3>Actions:</h3>\
+      <a href="#goleft" class="actionbutton">Go Left</button>\
+      <a href="#reactivate" class="actionbutton">Reactivate</button>\
+      <a href="#close" class="actionbutton">Close</button>\
     </div>\
   </td>\
 </tr>';
