@@ -145,17 +145,27 @@ def getWorkflowForFolder( f ):
     return w
 
 class InvocationContext(object):
-    def __init__( self, projectName, user, role ):
-        self.project = projectName
-        self.user = user
+    def __init__( self, userName, projectName, role ):
+        print "Project name = %r" % projectName
+        if userName is None:
+            print "User is <anonymous>"
+            self.user = None
+        else:
+            print "User name = %r" % userName
+            self.user = User.objects.get( login=userName )
+        self.userName = userName
+        #
+        if projectName is None:
+            print "Project is <none>"
+            self.project = None
+        else:
+            self.project = Project.objects.get( name=projectName )
+        self.projectName = projectName
+        #
         self.role = role
-    def getUser( self ):
-        return User.objects.get( login=self.user )
-    def getProject( self ):
-        return Project.objects.get( name=self.project )
 
 def createItem( ctx, className, inFolder, parms ):
-    p = ctx.getProject()
+    p = ctx.project
     f = Folder.objects.get( inProject=p, name=inFolder )
     print "Folder %r follows %r : %s" % (f,f.follows,f.follows.defn)
     wfInstance = getWorkflowForFolder( f )
@@ -165,7 +175,7 @@ def createItem( ctx, className, inFolder, parms ):
     x.itemInFolder = f.count
     if x.label is None:
         x.label = f.itemPattern % dict( itemInFolder=f.count )
-    u = ctx.getUser()
+    u = ctx.user
     print "%r did create: %r" % (u,x,)
     x.owner = u
     now = datetime.datetime.now()

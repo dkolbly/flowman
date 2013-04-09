@@ -21,9 +21,13 @@ class TrackListCommand(object):
         #print "refresh => %r" % (y,)
         tbl = CLITable( [ { "key": "project", "label": "Project" },
                           { "key": "folder", "label": "Folder" },
-                          { "key": "label", "label": "Label" },
-                          { "key": "owner.login", "label": "Login" },
-                          { "key": "owner.fullname", "label": "Full Name" } ] )
+                          { "key": "label", "label": "Label",
+                            "align": "right" },
+                          { "key": "owner.login", 
+                            "label": "Login" },
+                          { "key": "owner.fullname", 
+                            "label": "Full Name" },
+                          { "key": "url", "label": "Source Repository" } ] )
         lst = x.get('created',{}).values()
         tbl.provision( lst )
         #
@@ -38,11 +42,13 @@ class TrackListCommand(object):
             print tbl._break()
         print
         #
+        """
         def more( topic, event ):
             print "more! %r %r" % (topic,event)
         cnx.subscribe( "wf:watch/%d" % x['id'], more )
         import time
         time.sleep(30)
+        """
 
 class CLITable(object):
     VBORDER = " "
@@ -97,7 +103,13 @@ class CLITable(object):
     def _row( self, row ):
         x = [self.VBORDER]
         for i, cell in enumerate( self.__formatRow( row ) ):
-            x.append( self.__right( i, cell ) )
+            a = self.columns[i].get('align','left')
+            if a == 'right':
+                x.append( self.__right( i, cell ) )
+            elif a == 'center':
+                x.append( self.__center( i, cell ) )
+            else:
+                x.append( self.__left( i, cell ) )
             x.append( self.VBORDER )
         return ''.join(x)
     def _header( self ):

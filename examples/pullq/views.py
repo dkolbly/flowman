@@ -26,5 +26,6 @@ class TrackView(View):
         return { "project": x.inFolder.inProject.name,
                  "folder": x.inFolder.name,
                  "label": x.label,
+                 "url": x.sourceRepo,
                  "owner": { "login": x.owner.login,
                             "fullname": x.owner.label } }
