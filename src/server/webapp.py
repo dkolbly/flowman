@@ -86,7 +86,7 @@ class WorkflowProtocol(WampCraServerProtocol):
         #return threads.deferToThread( self.view.getProjects )
 
     def anonPermissions( self ):
-        return { "rpc": [ { 'uri': "http://rscheme.org/workflow#getProjects",
+        return { "rpc": [ { 'uri': "http://rscheme.org/workflow#",
                             'call': True } ],
                  "pubsub": [ { 'uri': "http://rscheme.org/workflow#notification",
                                'prefix': True,
@@ -96,7 +96,7 @@ class WorkflowProtocol(WampCraServerProtocol):
                                         'label': "Guest" } ] } }
 
     def userPermissions( self, user ):
-        return { "rpc": [ { 'uri': "http://rscheme.org/workflow#getProjects",
+        return { "rpc": [ { 'uri': "http://rscheme.org/workflow#",
                             'call': True } ],
                  "pubsub": [ { 'uri': "http://rscheme.org/workflow#notification",
                                'prefix': True,

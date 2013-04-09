@@ -16,10 +16,11 @@ button#notificationClose .ui-button-text {
 
 #notification {
     border-radius: 5px;
-    position: fixed;
+    /*position: fixed;*/
+    float: right;
     top: 3px;
     left: 3px;
-    width: 300px;
+    width: 400px;
     background: #eecc2b;
     opacity: 0.9;
     z-index: 100;
@@ -33,6 +34,10 @@ button.notify-unread {
 
 #notification table tr td {
   vertical-align: top;
+}
+
+#notification table tbody tr:nth-child(even) {
+    background-color: transparent;
 }
 
 #notification table tr th {
@@ -160,9 +165,7 @@ div.detailview {
 div.detailview table {
     margin-left: 20px;
     background: #ccc;
-}
-
-div.detailview table tr even {
+    width: 400px;
 }
 
 div.detailview h3 {

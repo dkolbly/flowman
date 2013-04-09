@@ -113,7 +113,6 @@ function ModalDialog( button, dialog, buttonopts ) {
     });
 }
 
-
 function pageLoaded() {
     $("#mobileLink").tooltip();
 
@@ -141,8 +140,20 @@ function pageLoaded() {
     tgrid = new View( "#tracksGrid" );
 };
 
+function reloadStateFromServer() {
+    // this is called when we establish or re-establish connectivity
+    // to the server
+    console.log( "reloading state" );
+    tgrid.didReconnect();
+}
+
+
+// TODO... call session.openView() to populate table...
+
 function View(selector) {
     console.log( "creating view on selector " + selector );
+
+    var index = {};
     var data = [];
     d0 = {};
     d0["id"] = "m101";
@@ -156,31 +167,57 @@ function View(selector) {
     data[1] = d1;
 
     var viewSpec = { id: "v99",
-                     cols: [ { label: "Foo" },
-                             { label: "Bar" },
-                             { label: "Comment" } ] };
+                     cols: [ { "key": "project", "label": "Project" },
+                             { "key": "folder", "label": "Folder" },
+                             { "key": "label", "label": "Label",
+                               "align": "right" },
+                             { "key": "owner.login", 
+                               "label": "Login" },
+                             { "key": "owner.fullname", 
+                               "label": "Full Name" },
+                             { "key": "url", "label": "Source Repository" } ] };
+
     var div = $(selector);
     div.append( Mustache.render( viewTemplate, viewSpec ) );
     var tbody = $(div).find("table tbody");
     this.selection = [];
-    
-    var row = { id: "v99_1",
-                cols: [ { "value": "<a href='#'>a54f0d69</a>" },
-                        { "value": "-" },
-                        { "value": "A silly thing, nothing really" } ] };
-    xr = [];
-    xr[0] = new ExpandableRow( this, row, tbody );
 
-    var row = { id: "v99_2",
-                cols: [ { "value": "<a href='#'>12345678</a>" },
-                        { "value": "?" },
-                        { "value": "What up homey?" } ] };
-    xr[1] = new ExpandableRow( this, row, tbody );
+    var view = this;
+
+    this.didReconnect = function () {
+        console.log( "opening view" );
+        var d = serverConnection.rpc( "wf:openView",
+                                      "pullq.views.TrackView",
+                                      {} );
+        d.then( function (val) {
+            console.log( "answer:" );
+            console.log( val );
+            // note, this works even if there is no 'created' attribute
+            for (var k in val.created) {
+                var v = val.created[k];
+                var cols = [];
+                for (var i = 0; i<viewSpec.cols.length; i++) {
+                    var cell = v[viewSpec.cols[i].key]
+                    if ((cell === undefined) || (cell === null)) {
+                        cols[i] = { value: "--" }
+                    } else {
+                        cols[i] = { value: "" + cell }
+                    }
+                }
+                var row = { id: k, cols: cols };
+                index[k] = new ExpandableRow( view, row, tbody )
+            }
+        },
+                function (err) {
+                    view.showError(err)
+                } );
+    };
 };
 
 function ExpandableRow( view, row, tbody ) {
     var me = this;
-    var rowdom = $(Mustache.render( viewSummaryRowTemplate, row ));
+    var exp = $.extend( { ncols: row.cols.length }, row );
+    var rowdom = $(Mustache.render( viewSummaryRowTemplate, exp ));
     rowdom.appendTo( tbody );
     rowdom.click( function () {
         var unclick = false;
@@ -199,7 +236,8 @@ function ExpandableRow( view, row, tbody ) {
             me.show();
         }
     } );
-    var detaildom = $(Mustache.render( viewDetailTemplateFilled, row ));
+
+    var detaildom = $(Mustache.render( viewDetailTemplateFilled, exp ));
     detaildom.appendTo( tbody );
     detaildom.hide();
     var detaildiv = $(detaildom).find(".detailview");
@@ -232,7 +270,7 @@ viewSummaryRowTemplate = '\
 
 viewDetailTemplate = '\
 <tr id="{{id}}_detail" class="detailrow">\
-  <td colspan="4" class="detailcell">\
+  <td colspan="{{ncols}}" class="detailcell">\
     <div class="detailview">\
     </div>\
   </td>\
@@ -240,7 +278,7 @@ viewDetailTemplate = '\
 
 viewDetailTemplateFilled = '\
 <tr id="{{id}}_detail" class="detailrow">\
-  <td colspan="4" class="detailcell">\
+  <td colspan="{{ncols}}" class="detailcell">\
     <div class="detailview">\
       <h3>Exceptions:</h3>\
       <table>\

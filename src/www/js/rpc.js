@@ -20,10 +20,16 @@ function ServerConnection( hostname ) {
             $("#loginButton .ui-btn-text").text( "Anonymous" );
         }
         loading.hide();
+        this.rpc( "wf:setContext", null, null )
         reloadStateFromServer();
     };
 
+    this.rpc = function () {
+        return this.session.rpc.apply( this.session, arguments );
+    };
+
     this.connected = function (session) {
+        session.prefix( "wf", "http://rscheme.org/workflow#" );
         loading.show( "Authenticating" );
 
         servercnx.session = session;
@@ -117,18 +123,44 @@ function rpcAddFunctions( session, delegate ) {
         delegate.didAuthenticate( user, perm );
     };
 
+    session.makeErrorHandler = function (api,deferred) {
+        return function(err) {
+            console.log( "RPC Error (" + err.uri + "):" );
+            console.log( err );
+            notificationPopup.post( new Date(),
+                                    "RPC Error: " + err.uri,
+                                    "notify-error",
+                                    err.detail );
+            deferred.reject( "RPC Error" );
+        }
+    };
+        
+
+    session.rpc = function (api) {
+        var deferred = when.defer();
+        session.call.apply( session, arguments )
+            .then( deferred.resolve,
+                   session.makeErrorHandler( api, deferred ) );
+        return deferred;
+    };
+
+    session.openView = function (factoryName, parms) {
+        var deferred = when.defer();
+        session.call( "http://rscheme.org/workflow#openView",
+                      factoryName,
+                      parms )
+            .then( deferred.resolve,
+                   session.makeErrorHandler( deferred ) );
+        return deferred;
+    };
+
     session.getProjects = function () {
         var deferred = when.defer();
         session.call( "http://rscheme.org/workflow#getProjects" )
             .then( function(ret) {
                       deferred.resolve( ret );
                    },
-                   function(err,desc) {
-                       console.log( "RPC Error:" );
-                       console.log( err );
-                       console.log( desc );
-                       deferred.reject( "RPC Error" );
-                   } );
+                   session.makeErrorHandler( deferred ) );
         return deferred;
     };
 }
