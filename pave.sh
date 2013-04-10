@@ -9,8 +9,20 @@ fi
 
 mongo flowman --eval 'db.dropDatabase()'
 
+mkdir -p .run/lib/app
+rm -f .run/lib/app/${example}
+ln -s $(readlink -f examples/${example}) .run/lib/app/${example}
+cat > .run/lib/app/application.py <<EOF
+NAME="${example}"
+HOME="$(readlink -f examples/${example})"
+import ${example} as MODULE
+EOF
+
 . setup.rc
-PYTHONPATH="examples:${PYTHONPATH}"
+#PYTHONPATH="examples:${PYTHONPATH}"
 
 python -m ${example}.pave
 
+
+#PYTHONPATH= python -c "import 
+python -c "from application import MODULE; print MODULE.__doc__"

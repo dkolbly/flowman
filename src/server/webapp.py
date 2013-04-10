@@ -195,6 +195,8 @@ import sys
 log.startLogging( sys.stdout )
 log.msg( "starting" )
 
-import pullq.services
-pullq.services.start()
+from application import MODULE
+app = MODULE.Application()
+app.start()
+
 reactor.run()
