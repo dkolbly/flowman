@@ -20,8 +20,10 @@ function ServerConnection( hostname ) {
             $("#loginButton .ui-btn-text").text( "Anonymous" );
         }
         loading.hide();
-        this.rpc( "wf:setContext", null, null )
-        reloadStateFromServer();
+        var d = this.rpc( "wf:setContext", null, null );
+        // we can't make any API calls until the context has been set,
+        // so kick it all off from the setContext callback
+        d.then( function () { reloadStateFromServer(); } );
     };
 
     this.rpc = function () {

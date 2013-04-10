@@ -5,6 +5,8 @@ import os
 import time
 import sys
 import re
+from cStringIO import StringIO
+import traceback
 
 SHELL_META = re.compile( r"[$\\'`<>{}();|*?\[\]\"]" )
 
@@ -18,9 +20,20 @@ def shellquote( word ):
         return word
 
 class Logger(object):
-    def __init__( self ):
+    def __init__( self, stdout=True ):
         self.__fd, self.__path = tempfile.mkstemp( ".job" )
         self.__f = os.fdopen( self.__fd, 'w' )
+        if stdout:
+            self.__tee = sys.stdout
+        else:
+            self.__tee = None
+    def getvalue( self ):
+        return open(self.__path).read()
+    def __del__( self ):
+        try:
+            os.unlink( self.__path )
+        except OSError:
+            pass
     def detail( self, msg ):
         self.__log( 'D', msg )
     def shell( self, words ):
@@ -31,6 +44,10 @@ class Logger(object):
         self.__log( 'W', msg )
     def error( self, msg ):
         self.__log( 'E', msg )
+    def exception( self ):
+        f = StringIO()
+        traceback.print_exc( 12, f )
+        self.__log( 'E', f.getvalue() )
     def __log( self, sev, msg ):
         t = time.time()
         tstr = time.strftime( "%Y-%m-%d %H:%M:%S %Z",
@@ -44,7 +61,9 @@ class Logger(object):
                 pass
             out.append( pre + line + "\n" )
             pass
+        tee = self.__tee
         for l in out:
             self.__f.write( l )
-            sys.stdout.write( l )
+            if tee is not None:
+                tee.write( l )
         self.__f.flush()

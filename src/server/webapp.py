@@ -63,6 +63,17 @@ class WorkflowProtocol(WampCraServerProtocol):
         return threads.deferToThread( thunk )
 
     @exportRpc
+    def getDetails( self, watchId, key, needTemplate ):
+        watch = self.watches[ watchId ]
+        def thunk():
+            rsp = { 'id': watchId,
+                    'details': watch.details(key) }
+            if needTemplate:
+                rsp['template'] = watch.view.detaildivtemplate()
+            return rsp
+        return threads.deferToThread( thunk )
+
+    @exportRpc
     def openView( self, factoryName, parms ):
         watchId = self.nextWatchId
         self.nextWatchId += 1
@@ -184,4 +195,6 @@ import sys
 log.startLogging( sys.stdout )
 log.msg( "starting" )
 
+import pullq.services
+pullq.services.start()
 reactor.run()
