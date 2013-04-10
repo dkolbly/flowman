@@ -141,7 +141,8 @@ class TrackCreateCommand(object):
         print "Foo => %r" % cnx.rpc( 'wf:foo', 3, 4 )
         assert self.args.url
         parms = { "label": "Hello, friend",
-                  "url": self.args.url }
+                  "url": self.args.url,
+                  "base": self.args.base }
         cnx.rpc( "wf:createItem",
                  "Track",
                  self.args.folder,

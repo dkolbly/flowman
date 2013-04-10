@@ -21,4 +21,6 @@ class Tracking(object):
         # this is invoked by the createItem() dal API (server.dal.createItem)
         print "Track create: %r" % (parms,)
         url = parms['url']
-        return data.Track( sourceRepo=url )
+        base = parms['base']
+        return data.Track( sourceRepo=url,
+                           baseRepo=base )

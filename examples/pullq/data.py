@@ -25,4 +25,25 @@ class Track(Item):
     and provides an easy way (shortcut) for issuing submissions
     """
     sourceRepo = StringField( required=True )
+    baseRepo = StringField( required=True )
+    tip = ReferenceField( 'Changeset', dbref=False )
+    basis = ReferenceField( 'Changeset', dbref=False )
     pass
+
+class Changeset(Document):
+    meta = { "indexes": ["changeset"],
+             "allow_inheritance": False }
+    changeset = StringField( required=True, unique=True )
+    parent1 = ReferenceField( 'Changeset', dbref=False )
+    parent2 = ReferenceField( 'Changeset', dbref=False )
+    date = DateTimeField( required=True )
+    author = StringField( required=True )
+    comment = StringField( required=True )
+    createdFiles = ListField( StringField() )
+    deletedFiles = ListField( StringField() )
+    updatedFiles = ListField( StringField() )
+    externalReferenceId = StringField()
+    def __repr__( self ):
+        return "<Changeset %s>" % (self.changeset[0:12],)
+    pass
+

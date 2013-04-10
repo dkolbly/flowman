@@ -33,7 +33,7 @@ LOCAL = LocalRepo( "/tmp/PullQueue" )
 
 class ProcessFailed(Exception):
     def __init__( self, msg, stdout, stderr, rc ):
-        Exception.__init__( msg )
+        Exception.__init__( self, msg )
         self.stdout = stdout
         self.stderr = stderr
         self.returncode = rc
@@ -53,6 +53,88 @@ def runshell( log, cmd ):
     else:
         log.detail( "successful exit code" )
     return stdout
+
+def parseChangeLog( stdout ):
+    result = []
+    info = None
+    for l in stdout.split('\n'):
+        if l.startswith( "ITEM|" ):
+            if info:
+                result.append( info )
+            cols = l.split('|')
+            afiles = set(cols[6].split())
+            cfiles = set(cols[7].split())
+            dfiles = set(cols[8].split())
+            info = { "node": cols[1],
+                     "rev": int(cols[2]),
+                     "parents": [c.split(':')[1] for c in cols[3].split()
+                                 if c != "-1:0000000000000000000000000000000000000000"],
+                     "author": cols[4],
+                     "date": float(cols[5]),
+                     "commentlines": [],
+                     "createdfiles": list(cfiles),
+                     "deletedfiles": list(dfiles),
+                     "modifiedfiles": list(afiles-(cfiles|dfiles)) }
+        elif l.startswith( "\t" ):
+            info['commentlines'].append( l[1:] )
+    if info:
+        result.append( info )
+    return result
+    
+def hg_log( log, base_url, revs ):
+    p = LOCAL.localFor( base_url )
+    cmd = ["hg", "-R", p, 
+           "--debug",
+           "log", 
+           "--template", "ITEM|{node}|{rev}|{parents}|{author}|{date}|{files}|{file_adds}|{file_dels}\\n\\t{desc|tabindent}\\n"]
+    for i in revs:
+        cmd.append( "-r%s" % i )
+    stdout = runshell( log, cmd )
+    return parseChangeLog( stdout )
+
+def hg_update( log, base_url, rev ):
+    p = LOCAL.localFor( base_url )
+    cmd = ["hg", "-R", p,
+           "update",
+           "--clean",
+           "--rev", rev]
+    runshell( log, cmd )
+
+def hg_merge_preview( log, base_url, rev ):
+    p = LOCAL.localFor( base_url )
+    cmd = ["hg", "-R", p,
+           "--debug", "merge"
+           "--preview",
+           "--rev", rev]
+    return runshell( log, cmd )
+
+def hg_incoming( log, base_url, src_url ):
+    p = LOCAL.localFor( base_url )
+    log.detail( "repo %s" % p )
+    cmd = ["hg", "-R", p, 
+           "--debug",
+           "incoming", 
+           "--template", "ITEM|{node}|{rev}|{parents}|{author}|{date}|{files}|{file_adds}|{file_dels}\\n\\t{desc|tabindent}\\n",
+           src_url]
+    try:
+        x = runshell( log, cmd )
+    except ProcessFailed as exc:
+        if (exc.returncode == 1) \
+                and (exc.stderr == "") \
+                and exc.stdout.endswith( "all remote heads known locally\nno changes found\n"):
+            log.note( "(exit code 1 ==> 'all remote heads known')" )
+            return []
+        raise
+    return parseChangeLog( x )
+
+def hg_pullin( log, base_url, src_url, revs ):
+    p = LOCAL.localFor( base_url )
+    log.detail( "repo %s" % p )
+    cmd = ["hg", "-R", p, "pull"]
+    for i in revs:
+        cmd.append( "-r%s" % i )
+    cmd.append( src_url )
+    runshell( log, cmd )
 
 def hg_update( log, src_url ):
     p = LOCAL.localFor( src_url )
