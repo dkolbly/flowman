@@ -64,19 +64,11 @@ class Item(Document):
     dtime = DateTimeField()
     active = BooleanField( required=True, default=True )
     state = DictField()
-    #def __init__( self, **kw ):
-    #    super( Item, self ).__init__( **kw )
-    #    t = datetime.datetime.now()
-    #    f = self.inFolder
-    #    f.count += 1
-    #    self.ctime = t
-    #    self.mtime = t
-    #    self.label = f.itemPattern % dict( itemInFolder=f.count )
-    #    self.itemInFolder = f.count
     def __repr__( self ):
-        return "<Item %s/%s/%s>" % (self.inFolder.inProject.name,
-                                    self.inFolder.name, 
-                                    self.label,)
+        return "<%s %s/%s/%s>" % (self.__class__.__name__,
+                                  self.inFolder.inProject.name,
+                                  self.inFolder.name, 
+                                  self.label,)
 
 class Audit(Document):
     meta = { "allow_inheritance": True }

@@ -7,8 +7,13 @@ in the process some of which represent automatic processing
 by other dev infrastructure.
 """
 
+import threading
+
 class Application(object):
     def start( self ):
+        print "starting PULLQ application"
         import pullq.services
-        services.start()
-
+        hg = pullq.services.MercurialRepoMgr()
+        t = threading.Thread( target=hg.run )
+        t.daemon = True
+        t.start()

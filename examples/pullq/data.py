@@ -26,8 +26,12 @@ class Track(Item):
     """
     sourceRepo = StringField( required=True )
     baseRepo = StringField( required=True )
+    # the tip of the source repo
     tip = ReferenceField( 'Changeset', dbref=False )
+    # the tip of the base repo
     basis = ReferenceField( 'Changeset', dbref=False )
+    # outgoing changesets
+    outgoing = ListField( ReferenceField( 'Changeset', dbref=False ) )
     pass
 
 class Changeset(Document):

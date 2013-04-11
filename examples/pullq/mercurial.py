@@ -4,6 +4,8 @@ import hashlib
 import os.path
 import subprocess
 from engine.job import JobFailed
+import re
+
 
 class LocalRepo(object):
     def __init__( self, top ):
@@ -54,6 +56,24 @@ def runshell( log, cmd ):
         log.detail( "successful exit code" )
     return stdout
 
+CHANGESET = re.compile( r"^changeset:\s*\d+:([0-9a-f]{40})" )
+
+def parseMergeChangeLogNodes( stdout ):
+    """'merge --preview' does not allow us to specify a template,
+    so the output format is different :-(
+    
+    All we do, however, is return the list of nodes so we can
+    match it up later with what we get from parsing the log
+    """
+    result = []
+    for l in stdout.split('\n'):
+        m = CHANGESET.match( l )
+        if m:
+            result.append( m.group(1) )
+    return result
+        
+    
+
 def parseChangeLog( stdout ):
     result = []
     info = None
@@ -92,6 +112,15 @@ def hg_log( log, base_url, revs ):
     stdout = runshell( log, cmd )
     return parseChangeLog( stdout )
 
+
+def hg_identify( log, url ):
+    cmd = ["hg", "--debug", "identify", url]
+    x = runshell( log, cmd )
+    lastline = x.split('\n')[-2]
+    if re.match( r"^[0-9a-f]{40}$", lastline ):
+        return lastline
+    raise RuntimeError, "Unexpected output from hg identify"
+
 def hg_update( log, base_url, rev ):
     p = LOCAL.localFor( base_url )
     cmd = ["hg", "-R", p,
@@ -103,10 +132,11 @@ def hg_update( log, base_url, rev ):
 def hg_merge_preview( log, base_url, rev ):
     p = LOCAL.localFor( base_url )
     cmd = ["hg", "-R", p,
-           "--debug", "merge"
+           "--debug", "merge",
            "--preview",
            "--rev", rev]
     return runshell( log, cmd )
+
 
 def hg_incoming( log, base_url, src_url ):
     p = LOCAL.localFor( base_url )
@@ -136,7 +166,7 @@ def hg_pullin( log, base_url, src_url, revs ):
     cmd.append( src_url )
     runshell( log, cmd )
 
-def hg_update( log, src_url ):
+def hg_pull( log, src_url ):
     p = LOCAL.localFor( src_url )
     log.detail( "repo %s" % p )
     if os.path.exists( p ):
