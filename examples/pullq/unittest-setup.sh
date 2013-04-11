@@ -30,7 +30,7 @@ hg clone ${RR}/integrate ${RR}/lane
 # make a change in the branch clone
 
 echo '# this is another test' >> ${RR}/donovan/pave.py
-hg -R ${RR}/donovan commit -m"Added a line to DONOVAN"
+hg -R ${RR}/donovan commit -m"Added a line to DONOVAN (issue 1)"
 
 # make two different changes in the other clone
 
@@ -38,7 +38,7 @@ echo '# this a simpler test' >> ${RR}/lane/setup.sh
 hg -R ${RR}/lane commit -m"Added something to LANE"
 date >> ${RR}/lane/00CHANGELOG
 hg -R ${RR}/lane add ${RR}/lane/00CHANGELOG
-hg -R ${RR}/lane commit -m"added the date, too"
+hg -R ${RR}/lane commit -m"added the date, too (issue 2)"
 
 # create the tracking objects in flowman
 

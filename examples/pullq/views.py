@@ -2,6 +2,7 @@ from server.views import View
 from engine.datamodel import User
 from data import Track
 import datetime
+from cStringIO import StringIO
 
 class TrackView(View):
     subject = Track
@@ -35,13 +36,40 @@ class TrackView(View):
         excList = [ { "severity": "?",
                       "summary": "What are you talking about?" } ]
         changesetList = []
+        issues = set()
         for cs in x.outgoing:
             changesetList.append( { "id": cs.changeset[0:12],
                                     "author": cs.author,
                                     "status": "",
                                     "time": cs.date,    # this gets converted to a float time by makeJSONable()
+                                    "markedupcomment": markupIssues( cs.comment, issues ),
                                     "comment": cs.comment } )
-        caseList = []
         return { "exceptions": excList,
                  "changesets": changesetList,
-                 "cases": caseList }
+                 "issues": sorted( list( issues ) ) }
+
+import re
+
+ISSUE_PATTERN = re.compile( "issue\s+(\d+)" )
+
+import cgi
+
+def markupIssues( src, fill ):
+    out = StringIO()
+    posn = 0
+    while True:
+        m = ISSUE_PATTERN.search( src, posn )
+        if m is None:
+            # flush the rest, and then we're done
+            out.write( cgi.escape( src[posn:] ) )
+            return out.getvalue()
+        # flush what came before
+        out.write( cgi.escape( src[posn:m.start()] ) )
+        # start the markup
+        out.write( '<a class="issueref" href="#">' )
+        # write the body
+        out.write( cgi.escape( src[m.start():m.end()] ) )
+        # finish the markup
+        out.write( '</a>' )
+        # and continue
+        posn = m.end()

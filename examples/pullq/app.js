@@ -38,7 +38,7 @@ function TrackView() {
           <td><a href="http://project.fogbugz.com/#{{id}}">{{id}}</a></td>\
           <td>{{status}}</td>\
           <td><a class="timeago" title="{{date}}">{{ago}}</a></td>\
-          <td>{{&comment}}</td>\
+          <td>{{&markedupcomment}}</td>\
         </tr>\
 {{/changesets}}\
       </table>\
