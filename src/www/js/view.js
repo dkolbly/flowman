@@ -1,6 +1,8 @@
 function View(selector) {
     console.log( "creating view on selector " + selector );
 
+    this.app = new TrackView();
+
     var index = {};
     var data = [];
 
@@ -14,6 +16,8 @@ function View(selector) {
                              { "key": "owner.fullname", 
                                "label": "Full Name" },
                              { "key": "url", "label": "Source Repository" } ] };
+    this.viewSpec = viewSpec;
+
     // build getters
     for (var i=0; i<viewSpec.cols.length; i++) {
         var expr = "x." + viewSpec.cols[i].key;
@@ -24,7 +28,7 @@ function View(selector) {
     div.append( Mustache.render( viewTemplate, viewSpec ) );
     var tbody = $(div).find("table tbody");
     this.selection = [];
-    this.detailsTemplate = null;
+    this.detailsTemplate = this.app.detailTemplate;
 
     var view = this;
 
@@ -40,17 +44,7 @@ function View(selector) {
             // note, this works even if there is no 'created' attribute
             for (var k in val.created) {
                 var v = val.created[k];
-                var cols = [];
-                for (var i = 0; i<viewSpec.cols.length; i++) {
-                    var cell = viewSpec.cols[i].getter(v);
-                    if ((cell === undefined) || (cell === null)) {
-                        cols[i] = { value: "--" }
-                    } else {
-                        cols[i] = { value: "" + cell }
-                    }
-                }
-                var row = { id: k, cols: cols };
-                index[k] = new ExpandableRow( view, row, tbody )
+                index[k] = new ExpandableRow( k, view, v, tbody )
             }
         },
                 function (err) {
@@ -59,10 +53,11 @@ function View(selector) {
     };
 };
 
-function ExpandableRow( view, row, tbody ) {
+function ExpandableRow( key, view, item, tbody ) {
     var me = this;
-    var exp = $.extend( { ncols: row.cols.length }, row );
-    var rowdom = $(Mustache.render( viewSummaryRowTemplate, exp ));
+    var exp = view.app.headline( item );
+    exp.id = key;
+    var rowdom = $(Mustache.render( view.app.headlineTemplate, exp ));
     rowdom.appendTo( tbody );
     rowdom.click( function () {
         var unclick = false;
@@ -82,7 +77,9 @@ function ExpandableRow( view, row, tbody ) {
         }
     } );
 
-    var detaildom = $(Mustache.render( viewDetailTemplate, exp ));
+    var detaildom = $(Mustache.render( viewDetailTemplate, 
+                                       { id: key, 
+                                         ncols: view.viewSpec.cols.length } ));
     detaildom.appendTo( tbody );
     detaildom.hide();
     var detaildiv = $(detaildom).find(".detailview");
@@ -91,12 +88,12 @@ function ExpandableRow( view, row, tbody ) {
         rowdom.addClass( "selected" );
         loading.show( "Getting details" );
         var needTemplate = false;
-        if (view.detailsTemplate === null) {
+        if (!view.detailsTemplate) {
             needTemplate = true;
         }
         var d = serverConnection.rpc( "wf:getDetails",
                                       view.watchId,
-                                      row.id,
+                                      key,
                                       needTemplate );
         d.then( function (rsp) {
             console.log( "got details:" );
@@ -108,7 +105,7 @@ function ExpandableRow( view, row, tbody ) {
                 template = rsp.template;
                 view.detailsTemplate = template;
             }
-            detaildiv.html( Mustache.render( template, rsp.details ) );
+            detaildiv.html( Mustache.render( template, view.app.details( rsp.details ) ) );
             detaildiv.find("div .actionbutton")
                 .button()
                 .click( function(event) {
@@ -143,10 +140,11 @@ viewTemplate = '\
   <tr>{{#cols}}<th>{{label}}</th>{{/cols}}</tr>\
 </table>';
 
-viewSummaryRowTemplate = '\
+/*viewSummaryRowTemplate = '\
 <tr id="{{id}}">\
   {{#cols}}<td>{{&value}}</td>{{/cols}}\
 </tr>';
+*/
 
 viewDetailTemplate = '\
 <tr id="{{id}}_detail" class="detailrow">\

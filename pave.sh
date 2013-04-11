@@ -12,6 +12,8 @@ mongo flowman --eval 'db.dropDatabase()'
 mkdir -p .run/lib/app
 rm -f .run/lib/app/${example}
 ln -s $(readlink -f examples/${example}) .run/lib/app/${example}
+rm -f .run/app
+ln -s $(readlink -f examples/${example}) .run/app
 cat > .run/lib/app/application.py <<EOF
 NAME="${example}"
 HOME="$(readlink -f examples/${example})"

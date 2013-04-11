@@ -23,6 +23,7 @@ class NonBrowsableFile(File):
 
 root = NonBrowsableFile( "src/www" )
 root.putChild( "ext", NonBrowsableFile( ".run/www" ) )
+root.putChild( "app", NonBrowsableFile( ".run/app" ) )
 root.putChild( "images", NonBrowsableFile( ".run/www/jquery.mobile-1.3.0/images" ) )
 setupREST( root )
 

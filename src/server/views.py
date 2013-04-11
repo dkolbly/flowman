@@ -105,17 +105,14 @@ class Watch(object):
             h = self.view.headlineform( k, *new[k] )
             crud.setdefault( 'created', {} )[k] = h
         self.reported = self.selection
-        #print "================ CRUD "
-        crud = makeJSONable( crud )
-        #print `crud`
-        return crud
+        return makeJSONable( crud )
 
     def details( self, key ):
         if not key.startswith( "mongo-oid-" ):
             raise ValueError, "invalid details key %r" % key
         k = ObjectId( key[10:] )
         entry = self.reported[k]
-        return self.view.detailform( k, *entry )
+        return makeJSONable( self.view.detailform( k, *entry ) )
 
 def makeJSONable( d ):
     def rec(x):
@@ -129,6 +126,8 @@ def makeJSONable( d ):
         elif isinstance(x,ObjectId):
             return "mongo-oid-%s" % x
         elif isinstance(x,datetime.datetime):
+            # the JSON representation is in integer milliseconds,
+            # which is how Javascript likes it
             return (time.mktime( x.timetuple() ) * 1000) \
                 + (x.microsecond / 1000);
         else:

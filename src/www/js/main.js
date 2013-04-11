@@ -136,6 +136,13 @@ function pageLoaded() {
 
     serverConnection = new ServerConnection( window.location.hostname );
 
+    // refresh elements with class "timeago" every few seconds
+    var timeagoLoop = function () {
+        refreshTimeAgos();
+        setTimeout( timeagoLoop, 6000 );
+    }
+    timeagoLoop();
+    
     // putting this here for now... should be in a page-specific section
     tgrid = new View( "#tracksGrid" );
 };
@@ -145,6 +152,32 @@ function reloadStateFromServer() {
     // to the server
     console.log( "reloading state" );
     tgrid.didReconnect();
+}
+
+
+function timeAgoString(t) {
+    var currentTime = new Date().valueOf();
+    var ago = (currentTime - t) * 0.001;
+    if (ago < 120) {
+        return "just now";
+    } else if (ago < 2*60) {
+        return (ago.toFixed(1)) + " seconds ago";
+    } else if (ago < 2*3600) {
+        return ((ago / 60).toFixed(1)) + " minutes ago";
+    } else if (ago < 2*86400) {
+        return ((ago / 3600).toFixed(1)) + " hours ago";
+    } else {
+        return ((ago / 86400).toFixed(1)) + " days ago";
+    }
+}
+
+function refreshTimeAgos() {
+    lst = $(".timeago");
+    for (var i=0; i<lst.length; i++) {
+        // the absolute time is stored in the title of the node
+        var abstime = new Date( lst[i].title );
+        $(lst[i]).text( timeAgoString(abstime.valueOf()) );
+    }
 }
 
 $(document).ready( pageLoaded );
