@@ -114,7 +114,7 @@ def hg_log( log, base_url, revs ):
 
 
 def hg_identify( log, url ):
-    cmd = ["hg", "--debug", "identify", url]
+    cmd = ["hg", "--debug", "identify", "-i", url]
     x = runshell( log, cmd )
     lastline = x.split('\n')[-2]
     if re.match( r"^[0-9a-f]{40}$", lastline ):

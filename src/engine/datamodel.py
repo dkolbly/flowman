@@ -65,10 +65,11 @@ class Item(Document):
     active = BooleanField( required=True, default=True )
     state = DictField()
     def __repr__( self ):
-        return "<%s %s/%s/%s>" % (self.__class__.__name__,
-                                  self.inFolder.inProject.name,
-                                  self.inFolder.name, 
-                                  self.label,)
+        return "<%s #%x %s/%s/%s>" % (self.__class__.__name__,
+                                      id(self),
+                                      self.inFolder.inProject.name,
+                                      self.inFolder.name, 
+                                      self.label,)
 
 class Audit(Document):
     meta = { "allow_inheritance": True }

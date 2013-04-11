@@ -37,3 +37,14 @@ hg -R ${RR}/donovan commit -m"Added a line to DONOVAN"
 echo '# this a simpler test' >> ${RR}/lane/setup.sh
 hg -R ${RR}/lane commit -m"Added something to LANE"
 
+# create the tracking objects in flowman
+
+. setup.rc
+
+cli() {
+  PYTHONPATH=examples:$PYTHONPATH python -m client.cli -U admin -P admin "$@"
+}
+
+I=${RR}/integrate
+cli -p rel track-create -f tracks -n donovan --url ${RR}/donovan --base ${I}
+cli -p rel track-create -f tracks -n lane --url ${RR}/lane --base ${I}

@@ -9,8 +9,8 @@ from engine.job import Logger
 class MercurialRepoMgr( object ):
     def run( self ):
         while True:
-            l = Logger()
-            #l = Logger( stdout=False )
+            #l = Logger()
+            l = Logger( stdout=False )
             show_output = False
             try:
                 n = self.poll( l )
@@ -41,20 +41,14 @@ class MercurialRepoMgr( object ):
             n, changed = self.refresh_info( log, t )
             if changed:
                 dirty.add( t )
-            print "XX t => %r" % (t,)
-            print "XX t.tip => %r" % (t.tip,)
             total_new += n
         # recheck merges for everything that has changed
         for t in dirty:
             log.note( "checking merge for %r" % t )
-            print "YY t => %r" % (t,)
-            print "YY t.tip => %r" % (t.tip,)
             self.refresh_merge( log, t )
         return total_new
 
     def refresh_merge( self, log, t ):
-        print "RM t => %r" % (t,)
-        print "RM t.tip => %r" % (t.tip,)
         x = pullq.mercurial.hg_merge_preview( log, 
                                               t.baseRepo, 
                                               t.tip.changeset )
@@ -102,10 +96,8 @@ class MercurialRepoMgr( object ):
         tip = self.ensure_changeset( log, track.baseRepo, tipNode )
         log.note( "  updating tip to %r" % tip )
         track.tip = tip
-        log.note( "  tip => %r" % (track.tip,) )
         track.outgoing = csl
         track.save()
-        log.note( "  tip => %r after save" % (track.tip,) )
         return num_new, True
 
     def ensure_changeset( self, log, baseRepo, node ):
@@ -161,4 +153,11 @@ class MercurialRepoMgr( object ):
             log.warn( "No existing changeset %s" % cs )
                                   
     def inventory( self ):
-        return pullq.data.Track.objects( active=True )
+        # if we don't expand the list here, then what objects() returns
+        # is actually some sort of virtual list object and each time
+        # we iterate through it we get a different copy of the object,
+        # as of the time of this query.  We rely on the object's identity,
+        # so here dereference the query into a real list of real objects.
+        # P.S., it took quite a while to figure out what mongoengine
+        # was doing with my objects' identity!
+        return [x for x in pullq.data.Track.objects( active=True )]
